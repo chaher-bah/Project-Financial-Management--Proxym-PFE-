@@ -1,0 +1,10 @@
+mkdir -p backend
+cd backend
+npm init -y 
+npm install express mongoose @elastic/elasticsearch keycloak-connect dotenv axios 
+mkdir -p backend/src 
+docker compose down
+docker compose up -d --build 
+
+npm install
+npm run build 
