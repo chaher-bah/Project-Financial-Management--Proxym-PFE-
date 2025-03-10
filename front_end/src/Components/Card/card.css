@@ -23,7 +23,7 @@
 }
 
 .sidebar-card:hover .sidebar-card-name,
-.sidebar-card.active .sidebar-card-name {
+.sidebar-card.active .sidebar-card-name span{
     color: var(--dark-color);
 }
 
@@ -32,12 +32,12 @@
     align-items: center;
     justify-content: center;
     margin-right: 12px;
-    font-size: 20px;
+    font-size: 25px;
     color: white; /* Icon color */
 }
 
-.sidebar-card-name {
-    font-size: 1.2rem;
+.sidebar-card-name span{
+    font-size: 1.5rem !important;
     font-weight: 500;
     color: white; /* Text color */
 }

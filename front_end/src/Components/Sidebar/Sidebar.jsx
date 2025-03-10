@@ -8,6 +8,7 @@ import {
   FiUsers,
   FiSettings,
 } from "react-icons/fi";
+import { Drawer, List, Toolbar, Typography } from "@mui/material";
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -21,25 +22,39 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside>
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <img src="/src/assets/company-logo.svg" alt="logo" />
-        </div>
-
-        <div className="sidebar-menu">
-          {menuItems.map((item) => (
-            <div key={item.name} onClick={() => setActiveItem(item.name)}>
-              <Card
-                icon={item.icon}
-                name={item.name}
-                className={activeItem === item.name ? "active" : ""}
-              />
-            </div>
-          ))}
-        </div>
-      </div>{" "}
-    </aside>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: 250,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: '19rem',
+          boxSizing: "border-box",
+          backgroundColor: "var(--primary-color)",
+          color: "white",
+          padding: "2rem 1rem ",
+        },
+      }}
+    >
+      <Toolbar>
+        <img
+          src="/src/assets/company-logo.svg"
+          alt="logo"
+          style={{ width: "100%",marginBottom: "3rem" }}
+        />
+      </Toolbar>
+      <List>
+        {menuItems.map((item) => (
+          <Card
+            key={item.name}
+            icon={item.icon}
+            name={item.name}
+            className={activeItem === item.name ? "active" : ""}
+            onClick={() => setActiveItem(item.name)}
+          />
+        ))}
+      </List>
+    </Drawer>
   );
 };
 
