@@ -25,7 +25,9 @@
 .sidebar-card:hover .sidebar-card-name,
 .sidebar-card.active .sidebar-card-name span{
     color: var(--dark-color);
+    transform: scale(1.1);
 }
+
 
 .sidebar-card-icon {
     display: flex;

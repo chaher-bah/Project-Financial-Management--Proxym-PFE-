@@ -7,10 +7,9 @@ import { Box } from "@mui/material";
 function App() {
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar />
       <Sidebar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        {/* Main content goes here */}
+      <Box component="main" sx={{ flexGrow: 1, p: 9 }}>
+        <Navbar />
       </Box>
     </Box>
   );
