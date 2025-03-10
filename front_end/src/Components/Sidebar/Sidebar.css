@@ -1,0 +1,28 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 17rem; 
+    background-color: #572ad7; /* Updated background color */
+    overflow-y: auto; /* For scrolling if content overflows */
+    color: white; /* Text color */
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 15px;
+    max-width: 15rem;
+}
+
+.sidebar-menu {
+    padding: 55px 20px 20px 20px;
+
+}
+
+.sidebar-menu .sidebar-card {
+    margin-bottom: 10px;
+}

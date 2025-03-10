@@ -1,0 +1,43 @@
+.sidebar-card {
+    display: flex;
+    align-items: center;
+    padding: 9px 25px;
+    margin: 0.5rem 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: inherit;
+    color: white; /* Text color */
+    gap: 10px;
+}
+
+.sidebar-card:hover,
+.sidebar-card.active {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+}
+
+.sidebar-card:hover .sidebar-card-icon,
+.sidebar-card.active .sidebar-card-icon {
+    color: var(--design-color);
+}
+
+.sidebar-card:hover .sidebar-card-name,
+.sidebar-card.active .sidebar-card-name {
+    color: var(--dark-color);
+}
+
+.sidebar-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 20px;
+    color: white; /* Icon color */
+}
+
+.sidebar-card-name {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: white; /* Text color */
+}
