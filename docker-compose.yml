@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     build:
@@ -50,12 +49,15 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - DB_VENDOR=h2
+      - KC_CACHE_THEMES=false   
+      - KC_CACHE_TEMPLATES=false
+      - KC_SPI_THEME_DEFAULT=keycloak
     ports:
       - "6060:8080"
     
     command:
       - start-dev
-
-volumes:
+    volumes:
+      - ./myKeycloakTheme/myTheme:/opt/keycloak/themes/myTheme
   mongodb_data:
   elasticsearch_data: 
