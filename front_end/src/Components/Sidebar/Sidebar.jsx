@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Card from "../Card/Card";85
+import Card from "../Card/Card";
 import "./sidebar.css";
 import {
   FiHome,
@@ -32,10 +32,10 @@ const Sidebar = () => {
     <Drawer
       variant="permanent"
       sx={{
-        width: "19rem",
+        width: "var(--sidebar-width)",
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: "19rem",
+          width: "var(--sidebar-width)",
           boxSizing: "border-box",
           backgroundColor: "var(--primary-color)",
           color: "white",

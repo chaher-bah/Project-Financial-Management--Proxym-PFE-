@@ -1,0 +1,30 @@
+.MuiBox-root{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.MuiBox-root[component="main"] {
+    width: calc(100% - var(--sidebar-width));
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.MuiBox-root.css-k008qs {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.navbar {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Make sure the app container takes full width */
+body, html, #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
