@@ -1,30 +1,63 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const { Client } = require('@elastic/elasticsearch');
-const Keycloak = require('keycloak-connect');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const session = require("express-session");
+const keycloak = require("./config/keycloak");
 
 const app = express();
 
 // Middleware
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  credentials: true, 
+}));
 app.use(express.json());
 
-// Elasticsearch client
-const esClient = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://elasticsearch:9200'
+// Session configuration
+app.use(
+  session({
+    secret: "BlnTh7FYx4SOk2d9KmEKsH8msp6avBlR",
+    resave: false,
+    saveUninitialized: true,
+    store: new session.MemoryStore(),
+    cookie: {
+      secure: false, // Set to true if using HTTPS
+      httpOnly: true // Ensures the cookie is not accessible via JavaScript
+    },
+  })
+);
+
+// Initialize Keycloak middleware
+app.use(keycloak.middleware());
+
+// Protected routes example
+app.get("/api/protected", keycloak.protect(), (req, res) => {
+  res.json({ message: "This is a protected route" });
 });
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://mongodb:27017/financial_management')
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Role-based protected routes
+app.get("/api/admin", keycloak.protect("realm:Admin"), (req, res) => {
+  res.json({ message: "Admin route" });
+});
 
-// Basic route
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get("/api/manager", keycloak.protect("realm:Managers"), (req, res) => {
+  res.json({ message: "Manager route" });
+});
+
+app.get("/api/pmo", keycloak.protect("realm:PMo"), (req, res) => {
+  res.json({ message: "PMO route" });
+});
+
+app.get("/api/pm", keycloak.protect("realm:ProjectManager"), (req, res) => {
+  res.json({ message: "PM route" });
+});
+
+// Public route
+app.get("/api/public", (req, res) => {
+  res.json({ message: "This is a public route" });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+  console.log(`Server is running on port ${PORT}`);
+});
