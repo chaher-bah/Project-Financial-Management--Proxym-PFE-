@@ -13,7 +13,11 @@
     padding: 55px 20px 20px 20px;
 
 }
-
+.sidebar-card-icon{
+    margin: 5px 0 !important;
+    padding: 0 !important;
+    min-width: unset !important;
+}
 .sidebar-menu .sidebar-card {
     margin-bottom: 10px;
 }

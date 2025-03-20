@@ -9,11 +9,14 @@ import {
   FiTool,
   FiPieChart,
   FiUserX,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
-import { Drawer, List, Toolbar, Typography } from "@mui/material";
+import { Drawer, List, Toolbar, Typography, IconButton } from "@mui/material";
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const menuItems = [
     { name: "Dashboard", icon: <FiHome />, path: "/" },
@@ -28,27 +31,43 @@ const Sidebar = () => {
     },
   ];
 
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <Drawer
       variant="permanent"
       sx={{
-        width: "var(--sidebar-width)",
+        width: isExpanded
+          ? "var(--sidebar-width)"
+          : "var(--mini-sidebar-width)",
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: "var(--sidebar-width)",
+          width: isExpanded
+            ? "var(--sidebar-width)"
+            : "var(--mini-sidebar-width)",
           boxSizing: "border-box",
           backgroundColor: "var(--primary-color)",
           color: "white",
           padding: "2rem 1rem ",
+          overflowX: "hidden",
+          alignItems:"center",
+          gap:"10px"
         },
       }}
     >
-      <Toolbar>
-        <img
-          src="/src/assets/company-logo.svg"
-          alt="logo"
-          style={{ width: "100%", marginBottom: "3rem" }}
-        />
+      <Toolbar style={{marginBottom:"2.5rem",alignItems:"center",gap:"10px"}}>
+        {isExpanded && (
+          <img
+            src="/src/assets/company-logo.svg"
+            alt="logo"
+            style={{ width: "88%"}}
+          />
+        )}
+        <IconButton onClick={toggleSidebar} style={{ color: "white",border:"2px solid white" }}>
+          {isExpanded ? <FiChevronLeft /> : <FiChevronRight />}
+        </IconButton>
       </Toolbar>
       <List>
         {menuItems.map((item) => (
@@ -57,12 +76,17 @@ const Sidebar = () => {
             key={item.name}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <Card
+            {isExpanded ?(<Card
               icon={item.icon}
-              name={item.name}
+              name={isExpanded ? item.name : ""}
               className={activeItem === item.name ? "active" : ""}
               onClick={() => setActiveItem(item.name)}
-            />
+            />):(
+            <Card
+              icon={item.icon}
+              className={activeItem === item.name ? "active" : ""}
+              onClick={() => setActiveItem(item.name)}
+            />)}
           </Link>
         ))}
       </List>

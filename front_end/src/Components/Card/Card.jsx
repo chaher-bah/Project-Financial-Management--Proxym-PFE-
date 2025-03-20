@@ -14,7 +14,7 @@ const Card = ({ icon, name, className, onClick }) => {
 
 Card.propTypes = {
   icon: PropTypes.element.isRequired,
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   className: PropTypes.string,
   onClick: PropTypes.func,
 };
