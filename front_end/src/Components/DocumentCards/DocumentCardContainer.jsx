@@ -53,7 +53,7 @@ const DocumentCardContainer = () => {
           <DocumentCard
             title="Document To Be Revised"
             documents={toBeRevisedDocuments}
-            cardColor="#C62300" 
+            cardColor="#C62300"
             className="to-be-revised"
             expandRoute="/reports/notapproved"
           />

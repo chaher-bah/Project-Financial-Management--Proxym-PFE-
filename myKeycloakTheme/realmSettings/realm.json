@@ -1,0 +1,54 @@
+{
+    "realm": "Proxym-IT",
+    "enabled": true,
+    "sslRequired": "external",
+    "registrationAllowed": true,
+    "registrationEmailAsUsername": true,
+    "rememberMe": true,
+    "resetPasswordAllowed": true,
+    "loginTheme": "myTheme",
+    "defaultRoles": [
+      "new"
+    ],
+    "roles": {
+      "realm": [
+        {
+          "name": "Admin"
+        },
+        {
+          "name": "Manager"
+        },
+        {
+          "name": "Pmo"
+        },
+        {
+          "name": "Pm"
+        },
+        {
+          "name": "new"
+        }
+      ]
+    },
+    "clients": [
+      {
+        "clientId": "pfe",
+        "enabled": true,
+        "publicClient": true,
+        "directAccessGrantsEnabled": true,
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false,
+        "serviceAccountsEnabled": false,
+        "protocol": "openid-connect",
+        "redirectUris": [
+          "http://localhost:3000/*"
+        ],
+        "webOrigins": [
+          "http://localhost:3000"
+        ],
+        "attributes": {
+          "login_theme": "myTheme"
+        }
+      }
+    ]
+  }
+  

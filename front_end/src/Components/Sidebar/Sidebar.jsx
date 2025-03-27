@@ -43,6 +43,7 @@ const Sidebar = () => {
           ? "var(--sidebar-width)"
           : "var(--mini-sidebar-width)",
         flexShrink: 0,
+        transition: "width 0.3s ease",
         "& .MuiDrawer-paper": {
           width: isExpanded
             ? "var(--sidebar-width)"
@@ -52,20 +53,26 @@ const Sidebar = () => {
           color: "white",
           padding: "2rem 1rem ",
           overflowX: "hidden",
-          alignItems:"center",
-          gap:"10px"
+          alignItems: "center",
+          gap: "10px",
+          transition: "width 0.3s ease",
         },
       }}
     >
-      <Toolbar style={{marginBottom:"2.5rem",alignItems:"center",gap:"10px"}}>
+      <Toolbar
+        style={{ marginBottom: "2.5rem", alignItems: "center", gap: "10px" }}
+      >
         {isExpanded && (
           <img
             src="/src/assets/company-logo.svg"
             alt="logo"
-            style={{ width: "88%"}}
+            style={{ width: "88%" }}
           />
         )}
-        <IconButton onClick={toggleSidebar} style={{ color: "white",border:"2px solid white" }}>
+        <IconButton
+          onClick={toggleSidebar}
+          style={{ color: "white", border: "2px solid white" }}
+        >
           {isExpanded ? <FiChevronLeft /> : <FiChevronRight />}
         </IconButton>
       </Toolbar>
@@ -76,17 +83,20 @@ const Sidebar = () => {
             key={item.name}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            {isExpanded ?(<Card
-              icon={item.icon}
-              name={isExpanded ? item.name : ""}
-              className={activeItem === item.name ? "active" : ""}
-              onClick={() => setActiveItem(item.name)}
-            />):(
-            <Card
-              icon={item.icon}
-              className={activeItem === item.name ? "active" : ""}
-              onClick={() => setActiveItem(item.name)}
-            />)}
+            {isExpanded ? (
+              <Card
+                icon={item.icon}
+                name={isExpanded ? item.name : ""}
+                className={activeItem === item.name ? "active" : ""}
+                onClick={() => setActiveItem(item.name)}
+              />
+            ) : (
+              <Card
+                icon={item.icon}
+                className={activeItem === item.name ? "active" : ""}
+                onClick={() => setActiveItem(item.name)}
+              />
+            )}
           </Link>
         ))}
       </List>
