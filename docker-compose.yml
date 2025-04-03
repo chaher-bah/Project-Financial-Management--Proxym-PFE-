@@ -5,11 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
+      - DOCKER_CONTAINER=true
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - KEYCLOAK_URL=http://keycloak:8080
-      - CLIENT_SECRET=TlzbPPRDSOFU6feYQL3PsMGt7gJXQpmX
+      - CLIENT_SECRET=0lITfQ7r4T7ks41HJq6fGHgCJVZr0Oj3
       - KEYCLOAK_REALM=Proxym-IT
       - KEYCLOAK_CLIENT_ID=pfe
     depends_on:
@@ -22,9 +25,14 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    environment:
+       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+       - MONGO_INITDB_DATABASE=${DATABASE_NAME}
     volumes:
       - mongodb_data:/data/db
+    
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0

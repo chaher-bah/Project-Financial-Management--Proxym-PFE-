@@ -21,11 +21,11 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", icon: <FiHome />, path: "/" },
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
-    { name: "Reports", icon: <FiPieChart />, path: "/reports" },
-    { name: "Team", icon: <FiUsers />, path: "/team" },
-    { name: "Role Assignment", icon: <FiUserX />, path: "/role-assignment" },
+    { name: "Rapport", icon: <FiPieChart />, path: "/reports" },
+    { name: "Equipes", icon: <FiUsers />, path: "/team" },
+    { name: "Roles config", icon: <FiUserX />, path: "/role-assignment" },
     {
-      name: "Account Management",
+      name: "Parametres",
       icon: <FiTool />,
       path: "/account-management",
     },
