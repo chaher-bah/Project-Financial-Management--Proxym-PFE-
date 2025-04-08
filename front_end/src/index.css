@@ -1,11 +1,12 @@
 :root {
-  --primary-color:#572ad7;
-  --secondary-color:#ececf3;
-  --dark-color:#52057B;
-  --light-color:#DBD8E3;
-  --design-color:#ffb938;
+  --primary-color: #572ad7;
+  --secondary-color: #ececf3;
+  --dark-color: #52057b;
+  --light-color: #dbd8e3;
+  --design-color: #ffb938;
+  --black-color: #333;
   --sidebar-width: 17rem;
-  --mini-sidebar-width:5rem;
+  --mini-sidebar-width: 5rem;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -58,4 +59,3 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-

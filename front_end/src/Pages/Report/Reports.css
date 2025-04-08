@@ -22,7 +22,7 @@
 
 .reports-title {
     font-weight: 600 !important;
-    color: #333;
+    color: var(--black-color);
 }
 
 .reports-table-container {
@@ -43,7 +43,7 @@
     padding: 16px;
     text-align: left;
     font-weight: 600;
-    color: #333;
+    color: var(--black-color);
     border-bottom: 1px solid #ddd;
 }
 

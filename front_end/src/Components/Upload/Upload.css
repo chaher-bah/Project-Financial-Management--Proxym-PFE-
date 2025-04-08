@@ -57,7 +57,7 @@
 
 /* Upload button styling */
 .upload-button {
-  background-color: #333333 !important;
+  background-color: var(--black-color)333 !important;
   color: white !important;
   padding: 8px 20px !important;
   margin-left: 10px !important;

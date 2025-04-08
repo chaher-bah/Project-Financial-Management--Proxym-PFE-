@@ -1,41 +1,96 @@
 .navbarContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    background-color: var(--light-color);
-    display: flex;
-    justify-content: flex-end;
-    align-items:center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
 
-  
-  .navbarUser {
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbarUser span {
-    margin-right: 10px;
-    color: var(--dark-color);
-    font-weight: 500;
-    font-size: 16px;
-  }
-  
-  .navbarUserIcon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin:0 3rem 0 1rem;
-    background-color: var(--dark-color);
-    color: var(--light-color);
-    font-size: 20px;
-    border: 1px solid var(--primary-color);
-    border-radius: 50%;
-  }
+.navbarUser {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.navbarUser span {
+  margin-right: 10px;
+  font-size: 16px;
+  color: var(--black-color);
+}
+
+.navbarUserIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 3rem 0 1rem;
+  font-size: 20px;
+  color: var(--black-color);
+  background-color: var(--dark-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 50%;
+}
+
+.navbarDropdown {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 380px;
+  z-index: 1000;
+  will-change: transform;
+  transform: translate3d(-60px, 74px, 0px);
+}
+
+.profileCard {
+  padding: 15px;
+}
+
+.profileHeader {
+  background-image: url("/bg-1.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 10px;
+}
+
+.profileName {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--light-color);
+}
+
+.profileOptions {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.profileOption {
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.profileOption span {
+  font-size: 18px;
+  color: var(--black-color);
+}
+
+.profileOption small {
+  display: block;
+  font-size: 15px;
+  color: #888;
+}

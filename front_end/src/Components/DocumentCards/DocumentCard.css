@@ -30,7 +30,7 @@
 
 .expand-button {
   background-color: white !important;
-  color: #333 !important;
+  color: var(--black-color) !important;
   font-weight: 600 !important;
   text-transform: none !important;
   min-width: 80px !important;
