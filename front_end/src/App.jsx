@@ -6,6 +6,7 @@ import Sidebar from "./Components/Sidebar/Sidebar";
 import Reports from "./Pages/Report/Reports";
 import ApprovedReports from "./Pages/Report/ApprovedReports";
 import NotApprovedReports from "./Pages/Report/NotApprovedReports";
+import Parameters from "./Pages/Settings/Parameters";
 import { Box } from "@mui/material";
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
               path="/reports/notapproved"
               element={<NotApprovedReports />}
             />
+            <Route path="/account-management" element={<Parameters />} />
             {/* Add other routes here */}
           </Routes>
         </Box>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Reports.css";
+import { Typography } from "@mui/material";
 import Upload from "../../Components/Upload/Upload";
 const Reports = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -14,6 +15,9 @@ const Reports = () => {
   };
 
   return <div class="card">
+    <Typography variant="h4" component="h1" gutterBottom>
+        Rapports
+      </Typography>
     <Upload/>
   </div>;
 };

@@ -21,7 +21,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", icon: <FiHome />, path: "/" },
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
-    { name: "Rapport", icon: <FiPieChart />, path: "/reports" },
+    { name: "Rapports", icon: <FiPieChart />, path: "/reports" },
     { name: "Equipes", icon: <FiUsers />, path: "/team" },
     { name: "Roles config", icon: <FiUserX />, path: "/role-assignment" },
     {

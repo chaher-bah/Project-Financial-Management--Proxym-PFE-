@@ -33,7 +33,7 @@
       {
         "clientId": "pfe",
         "enabled": true,
-        "publicClient": true,
+        "publicClient": false,
         "directAccessGrantsEnabled": true,
         "standardFlowEnabled": true,
         "implicitFlowEnabled": false,
