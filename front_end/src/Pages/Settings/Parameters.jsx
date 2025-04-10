@@ -24,6 +24,7 @@ const Parameters = () => {
     email: "contact@proxym.com",
     phoneNumber: "+216 71 123 456",
     groupe: "BEST",
+    role: "Admin",
   });
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -66,7 +67,7 @@ const Parameters = () => {
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ m: 3 }}>
         Paramètres
       </Typography>
 
@@ -77,7 +78,7 @@ const Parameters = () => {
       )}
 
       <Grid container spacing={3}>
-        <Grid item xs={10} md={3}>
+        <Grid item xs={10} md={4}>
           <Card elevation={2} sx={{ p: 2.5 }}>
             <Typography component="div" variant="h5" sx={{ mb: 2.5 }}>
               Information Personnelle
@@ -99,6 +100,8 @@ const Parameters = () => {
                   value={generalSettings.phoneNumber}
                 />
                 <DataField label="Groupe" value={generalSettings.groupe} />
+                <DataField label="Role" value={generalSettings.role} />
+
               </Grid>
               <Stack spacing={2} sx={{ mb: 3 }}>
                 <Button
@@ -153,12 +156,7 @@ const Parameters = () => {
                     value={generalSettings.phoneNumber}
                     onChange={handleGeneralSettingsChange}
                   />
-                  <InputField
-                    label="Groupe"
-                    name="groupe"
-                    value={generalSettings.groupe}
-                    onChange={handleGeneralSettingsChange}
-                  />
+                  
                 </Grid>
                 <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
                   <Button
