@@ -4,22 +4,22 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${PORT}:3000"
     env_file:
       - .env
     environment:
       - DATABASE_NAME=${MONGO_INITDB_DATABASE}
       - MONGODB_HOST=mongodb
-      - DATABASE_PORT=27017
+      - DATABASE_PORT=${DATABASE_PORT}
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - NODE_ENV=development
       - DOCKER_CONTAINER=true
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - KEYCLOAK_URL=http://keycloak:8080
-      - CLIENT_SECRET=0lITfQ7r4T7ks41HJq6fGHgCJVZr0Oj3
-      - KEYCLOAK_REALM=Proxym-IT
-      - KEYCLOAK_CLIENT_ID=pfe
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -72,14 +72,14 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
       - DB_VENDOR=h2
       - KC_CACHE_THEMES=false   
       - KC_CACHE_TEMPLATES=false
       - KEYCLOAK_IMPORT=/opt/keycloak/data/import/realm.json
     ports:
-      - "8080:8080"
+      - "${KEYCLOAK_PORT}:8080"
     command:
       - start-dev
       - --import-realm

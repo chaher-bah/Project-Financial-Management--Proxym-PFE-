@@ -8,6 +8,7 @@ const Reports= lazy(()=> import( "./Pages/Report/Reports"));
 const ApprovedReports =lazy(()=>import( "./Pages/Report/ApprovedReports"));
 const NotApprovedReports =lazy(()=> import( "./Pages/Report/NotApprovedReports"));
 const Parameters =lazy(()=> import( "./Pages/Settings/Parameters"));
+
 import { Box } from "@mui/material";
 import Page404 from "./Pages/Page404/Page404";
 
