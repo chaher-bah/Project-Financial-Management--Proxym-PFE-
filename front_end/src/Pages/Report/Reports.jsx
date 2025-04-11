@@ -15,8 +15,8 @@ const Reports = () => {
   };
 
   return <div class="card">
-    <Typography variant="h4" component="h1" gutterBottom>
-        Rapports
+    <Typography variant="h4" component="h1" gutterBottom sx={{m:2.5}}>
+        Validation de Documents
       </Typography>
     <Upload/>
   </div>;

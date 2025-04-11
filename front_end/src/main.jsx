@@ -20,6 +20,7 @@ createRoot(document.getElementById('root')).render(
       onLoad: 'login-required',
       checkLoginIframe: false,
       enableLogging: true,
+      pkceMethod: 'S256', 
     }}
     >
   <StrictMode>

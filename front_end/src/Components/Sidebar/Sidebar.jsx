@@ -19,9 +19,9 @@ const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const menuItems = [
-    { name: "Dashboard", icon: <FiHome />, path: "/" },
+    { name: "Dashboard", icon: <FiHome />, path: "/dash" },
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
-    { name: "Rapports", icon: <FiPieChart />, path: "/reports" },
+    { name: "Validation des Docs", icon: <FiPieChart />, path: "/reports" },
     { name: "Equipes", icon: <FiUsers />, path: "/team" },
     { name: "Roles config", icon: <FiUserX />, path: "/role-assignment" },
     {

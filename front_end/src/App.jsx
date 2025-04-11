@@ -11,6 +11,7 @@ const Parameters =lazy(()=> import( "./Pages/Settings/Parameters"));
 
 import { Box } from "@mui/material";
 import Page404 from "./Pages/Page404/Page404";
+import Dash from "./Pages/Dashboard/Dash";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<Navbar />} />
+                <Route path="/dash" element={<Dash />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/reports/approved" element={<ApprovedReports />} />
                 <Route
