@@ -7,7 +7,6 @@ const Dash = () => {
     const { keycloak1, initialized } = useKeycloak();
     console.log(keycloak)
     if (!initialized) return <div>Loading…</div>;
-    console.log(keycloak.tokenParsed?.realm_access?.roles || [])
     const roles = keycloak.tokenParsed?.realm_access?.roles || [];
     console.log(roles)
     if (!keycloak.authenticated) {
