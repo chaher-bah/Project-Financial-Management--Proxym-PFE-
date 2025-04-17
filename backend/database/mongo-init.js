@@ -11,6 +11,9 @@ if (!adminUser) {
   });
   print('Admin user created');
 }
+else {
+  print('Admin user already exists');
+}
 
 // Switch to and set up the application database
 db = db.getSiblingDB('pfeDB');
@@ -25,29 +28,12 @@ if (!appUser) {
   });
   print('Application user created');
 }
+else {
+  print('Application user already exists');
+}
 
 // Create application collections
-if (!db.getCollectionNames().includes('users')) {
-  db.createCollection('users');
-  print('Created users collection');
-  
-  // Insert some sample users for testing
-  db.users.insertMany([
-    {
-      name: 'Admin User',
-      email: 'admin@example.com',
-      role: 'admin',
-      createdAt: new Date()
-    },
-    {
-      name: 'Test User',
-      email: 'user@example.com', 
-      role: 'user',
-      createdAt: new Date()
-    }
-  ]);
-  print('Added sample users');
-}
+
 
 
 print('MongoDB initialization completed');

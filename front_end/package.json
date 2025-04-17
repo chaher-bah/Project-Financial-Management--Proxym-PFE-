@@ -15,6 +15,7 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@react-keycloak/web": "^3.4.0",
+    "axios": "^1.8.4",
     "front_end": "file:",
     "keycloak-js": "^26.1.5",
     "prop-types": "^15.8.1",

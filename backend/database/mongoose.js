@@ -1,12 +1,11 @@
+require('dotenv').config({ path: '../../../.env' });
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config();
 
-const DATABASE_NAME = process.env.DATABASE_NAME;
-const DATABASE_HOST = process.env.MONGODB_HOST;
-const MONGODB_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME;
-const MONGODB_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD;
-const DATABASE_PORT = process.env.DATABASE_PORT;
+const DATABASE_NAME = process.env.DATABASE_NAME || 'pfeDB';
+const DATABASE_HOST = process.env.MONGODB_HOST || 'localhost';
+const MONGODB_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME ||'admin';
+const MONGODB_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD ||'admin';
+const DATABASE_PORT = process.env.DATABASE_PORT || '27017';
 
 // Build the connection URI with authentication
 const URI = `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?authSource=admin`;
