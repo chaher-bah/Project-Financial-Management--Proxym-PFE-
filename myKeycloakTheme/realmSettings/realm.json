@@ -1,73 +1,91 @@
 {
-    "realm": "Proxym-IT",
-    "enabled": true,
-    "sslRequired": "external",
-    "registrationAllowed": true,
-    "registrationEmailAsUsername": true,
-    "rememberMe": true,
-    "resetPasswordAllowed": true,
-    "loginTheme": "myTheme",
-    "defaultRoles": [
-      "new"
-    ],
-    "roles": {
-      "realm": [
-        {
-          "name": "Admin"
-        },
-        {
-          "name": "Manager"
-        },
-        {
-          "name": "Pmo"
-        },
-        {
-          "name": "Pm"
-        },
-        {
-          "name": "new"
-        }
-      ]
-    },
-    "users":[
+  "realm": "Proxym-IT",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "loginTheme": "myTheme",
+  "accessTokenLifespan": 600,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr"],
+  "defaultLocale": "en",
+  "defaultRoles": ["new"],
+  "roles": {
+    "realm": [
       {
-        "username": "Platforme Admin",
-        "email": "paypalbahrichaher@gmail.com",
-        "enabled": true,
-        "emailVerified": true,
-        "firstName": "Admin",
-        "lastName": "Admin",
-        "credentials": [{
-          "type": "password",
-          "value": "admin"
-        }],
-        "realmRoles": [
-          "Admin"
-        ]
-      }
-    ],
-    "clients": [
+        "name": "Admin"
+      },
       {
-        "clientId": "pfe",
-        "enabled": true,
-        "publicClient": false,
-        "directAccessGrantsEnabled": true,
-        "standardFlowEnabled": true,
-        "implicitFlowEnabled": false,
-        "serviceAccountsEnabled": false,
-        "protocol": "openid-connect",
-        "redirectUris": [
-          "http://localhost:3000/*",
-          "http://localhost:5173/*"
-        ],
-        "webOrigins": [
-          "http://localhost:3000",
-          "http://localhost:5173/*"
-        ],
-        "attributes": {
-          "login_theme": "myTheme"
-        }
+        "name": "Manager"
+      },
+      {
+        "name": "Pmo"
+      },
+      {
+        "name": "Pm"
+      },
+      {
+        "name": "new"
       }
     ]
-  }
-  
+  },
+  "users": [
+    {
+      "username": "Platforme Admin",
+      "email": "paypalbahrichaher@gmail.com",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin"
+        }
+      ],
+      "realmRoles": ["Admin"],
+      "clientRoles": {
+        "realm-management": [
+          "query-users",
+          "view-users"
+        ]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "pfe",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://localhost:3000/*", "http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:3000", "http://localhost:5173/*"],
+      "attributes": {
+        "login_theme": "myTheme"
+      }
+    },
+    {
+      "clientId": "pfeFRONT",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://localhost:3000/*", "http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:3000", "http://localhost:5173/*"],
+      "attributes": {
+        "login_theme": "myTheme"
+      }
+    }
+  ]
+}

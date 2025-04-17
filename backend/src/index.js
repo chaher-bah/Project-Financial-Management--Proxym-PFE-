@@ -2,15 +2,16 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
-const keycloak = require("./config/keycloak");
 const { connectToDatabase } = require('../database/mongoose.js');
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const mongoose = require('mongoose');
-
+const {keycloakData} = require("./middleware/keycloakconfig.js");
+const Keycloak = require("keycloak-connect");
 const app = express();
 
 // Define allowed origins
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173','http://localhost:8080'];
 
 // Connect to MongoDB
 connectToDatabase()
@@ -31,52 +32,38 @@ app.use(
 );
 app.use(express.json());
 
-// Session configuration
-app.use(
-  session({
-    secret: process.env.KEYCLOAK_CLIENT_SECRET || "ndjA0cXpqRZRfY4H3vnjrt9PPyhvFJbx",
-    resave: false,
-    saveUninitialized: true,
-    store: new session.MemoryStore(),
-    cookie: {
-      secure: false, // Set to true if using HTTPS
-      httpOnly: true // Ensures the cookie is not accessible via JavaScript
-    },
-  })
-);
+const memoryStore = new session.MemoryStore();
+app.use(session({
+  secret: process.env.KEYCLOAK_CLIENT_SECRET || "2nMpe2u5",
+  resave: false,
+  saveUninitialized: true,
+  store: memoryStore,
+  }));
+const keycloakInst = new Keycloak({
+  store: memoryStore,
+}, keycloakData);
 
-// Initialize Keycloak middleware
-app.use(keycloak.middleware());
+app.use(keycloakInst.middleware());
+// console.log(keycloakInst)
 
-// Register routes
-app.use('/api/users', userRoutes);
 
-// Protected routes example
-app.get("/api/protected", keycloak.protect(), (req, res) => {
-  res.json({ message: "This is a protected route" });
-});
-
-// Role-based protected routes
-app.get("/api/admin", keycloak.protect("realm:Admin"), (req, res) => {
-  res.json({ message: "Admin route" });
-});
-
-app.get("/api/manager", keycloak.protect("realm:Manager"), (req, res) => {
-  res.json({ message: "Manager route" });
-});
-
-app.get("/api/pmo", keycloak.protect("realm:Pmo"), (req, res) => {
-  res.json({ message: "PMO route" });
-});
-
-app.get("/api/pm", keycloak.protect("realm:Pm"), (req, res) => {
-  res.json({ message: "PM route" });
-});
-
-// Public route
 app.get("/api/public", (req, res) => {
   res.json({ message: "This is a public route" });
 });
+//user api
+app.use('/api/user', keycloakInst.protect(), userRoutes);
+
+// Admin api
+
+app.use('/api/admin', keycloakInst.protect('realm:Admin'), adminRoutes);
+
+
+// app.get('/api/me',keycloakInst.protect(),(req,res)=>{
+//   res.json({message:"this is a protected route"})
+// })
+
+
+
 
 // Add MongoDB connection status endpoint
 app.get('/api/status', (req, res) => {
