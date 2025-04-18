@@ -4,17 +4,37 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import keycloak from './config/keycloak'
 import './index.css'
 import App from './App.jsx'
-const eventLogger = (event, error) => {
-  console.log('onKeycloakEvent', event, error);
-};
+import axios from 'axios';
+
 
 const tokenLogger = (tokens) => {
   console.log('onKeycloakTokens', tokens);
 };
+const saveUserData = async (token) => {
+  try {
+    const response = await axios.put('http://localhost:3000/api/user/sync', {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log('Operation successful:', response.data.message);
+  } catch (error) {
+    console.error('Error saving user data:', error);
+  }
+};
+const handleKeycloakEvent = (event, error) => {
+  if (event === 'onAuthSuccess' && keycloak.authenticated) {
+    console.log('User authenticated successfully');
+    console.log('onKeycloakEvent', event, error);
+    saveUserData(keycloak.token);
+  }
+};
+
+
 createRoot(document.getElementById('root')).render(
   <ReactKeycloakProvider
     authClient={keycloak}
-    onEvent={eventLogger}
+    onEvent={handleKeycloakEvent}
     onTokens={tokenLogger}
     initOptions={{
       onLoad: 'login-required',

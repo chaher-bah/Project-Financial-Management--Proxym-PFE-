@@ -26,58 +26,8 @@ const Parameters = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
   const [activeSection, setActiveSection] = useState("info");
-  const {userData,loading,error}=useGetUserData();
+  const {userData,loading,error,setError, saveUserData}=useGetUserData();
 
-  // default data for parameters
-  // const [userData, setuserData] = useState({
-  //     id: null,
-  //     name: "Bahri Chaher",
-  //     email: "contact@proxym.com",
-  //     phoneNumber: "+216 71 123 456",
-  //     groupe: "BEST",
-  //     role: "Admin",
-  //     photo:avatarPreview,
-  // });
-
-    
-  // Fetch user data when component mounts
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const response = await axios.get(`http://localhost:3000/api/user/email/${keycloak.tokenParsed.email}`, {
-  //         headers: {
-  //           Authorization: `Bearer ${keycloak.token}`
-  //         }
-  //       });
-        
-  //       const userData = response.data.user;
-  //       setuserData(prev => ({
-  //         ...prev,
-  //         id: userData._id,
-  //         name: userData.name,
-  //         email: userData.email || userData.email,
-  //         phoneNumber: userData.phone || 'Not Provided',
-  //         groupe: userData.groupe || 'Not Assigned',
-  //         role: keycloak.realmAccess.roles || '',
-  //       }));
-  //       setAvatarPreview(userData.photo?.data || '/myAvatar.png');
-        
-  //       setLoading(false);
-  //     } catch (err) {
-  //       console.error('Error fetching user data:', err);
-  //       setError({open:true,message:'Failed to load user data. Please try again later.'});
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   if (keycloak.authenticated) {
-  //     fetchUserData();
-  //   }
-  // }, [keycloak.authenticated, keycloak.token]);
-
-
-  
   const [form, setForm] = useState({
     name: userData.name,
     email: userData.email,
@@ -106,56 +56,78 @@ const Parameters = () => {
   };
 
 
+  // const handleSaveSettings = async () => {
+  //   // Check if any fields have changed
+  //   const hasChanges =
+  //     (form.name !== userData.name && form.name !== "") ||
+  //     (form.email !== userData.email && form.email !== "") ||
+  //     (form.phoneNumber !== userData.phoneNumber &&
+  //       form.phoneNumber !== null);
+  //   if (!hasChanges) {
+  //     console.log("No changes to save");
+  //     setError({ open: true, message: "Aucun changement a enregistrer" });
+
+  //     return;
+  //   }
+  //   try {
+  //     setLoading(true);
+
+  //     // Make API call to update user settings
+  //     await axios.patch(
+  //       `http://localhost:3000/api/user/${userData.id}`,
+  //       {
+  //         name: form.name,
+  //         email: form.email,
+  //         phone: form.phoneNumber,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${keycloak.token}`,
+  //         },
+  //       }
+  //     );
+
+  //     setIsSaved(true);
+  //     setLoading(false);
+  //     setuserData((prev) => ({
+  //       ...prev,
+  //       name: form.name,
+  //       email: form.email,
+  //       phoneNumber: form.phoneNumber,
+  //     }));
+  //   } catch (err) {
+  //     console.error("Error saving settings:", err);
+  //     setError({
+  //       open: true,
+  //       message: "Failed to save settings. Please try again.",
+  //     });
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSaveSettings = async () => {
-    // Check if any fields have changed
+    // Check for changes
     const hasChanges =
       (form.name !== userData.name && form.name !== "") ||
       (form.email !== userData.email && form.email !== "") ||
-      (form.phoneNumber !== userData.phoneNumber &&
-        form.phoneNumber !== null);
+      (form.phoneNumber !== userData.phoneNumber && form.phoneNumber !== null);
+
     if (!hasChanges) {
       console.log("No changes to save");
       setError({ open: true, message: "Aucun changement a enregistrer" });
-
       return;
     }
-    try {
-      setLoading(true);
 
-      // Make API call to update user settings
-      await axios.patch(
-        `http://localhost:3000/api/user/${userData.id}`,
-        {
-          name: form.name,
-          email: form.email,
-          phone: form.phoneNumber,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        }
-      );
+    const success = await saveUserData({
+      name: form.name,
+      email: form.email,
+      phone: form.phoneNumber,
+    });
 
+    if (success) {
       setIsSaved(true);
-      setLoading(false);
-      setuserData((prev) => ({
-        ...prev,
-        name: form.name,
-        email: form.email,
-        phoneNumber: form.phoneNumber,
-      }));
-    } catch (err) {
-      console.error("Error saving settings:", err);
-      setError({
-        open: true,
-        message: "Failed to save settings. Please try again.",
-      });
-      setLoading(false);
     }
   };
-
-
 
 
   return (
@@ -242,21 +214,20 @@ const Parameters = () => {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
 
                   />
-                  <InputField
+                  {/* <InputField
                     label="Email"
                     name="email"
                     placeholder="Nouveau Email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
 
-                  />
+                  /> */}
                   <InputField
                     label="Numéro de téléphone"
                     name="phoneNumber"
                     placeholder="Nouveau Numéro de téléphone"
                     value={form.phoneNumber}
                     onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                  type="number"
 
                   />
                   
