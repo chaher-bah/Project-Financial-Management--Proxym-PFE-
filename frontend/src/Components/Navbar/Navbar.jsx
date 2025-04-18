@@ -20,7 +20,6 @@ const Navbar = () => {
         <div className="navbarDropdown">
           <div className="profileCard">
             <div className="profileHeader">
-              {/* Placeholder for user avatar */}
               <Avatar
                 className="profileAvatarIcon"
                 src="/myAvatar.png"

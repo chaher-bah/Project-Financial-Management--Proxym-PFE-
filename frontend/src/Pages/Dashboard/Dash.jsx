@@ -1,11 +1,12 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import keycloak from '../../config/keycloak';
 import { useKeycloak } from '@react-keycloak/web';
-// import { useAuthContext } from '../config/AuthContext';
-
 const Dash = () => {
-    const { keycloak1, initialized } = useKeycloak();
-    console.log(keycloak)
+
+    const { keycloak1, initialized } = useKeycloak();    
+       
+
+
     if (!initialized) return <div>Loading…</div>;
     const roles = keycloak.tokenParsed?.realm_access?.roles || [];
     console.log(roles)

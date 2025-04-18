@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Box,
   Typography,
@@ -16,28 +16,83 @@ import PersonIcon from "@mui/icons-material/Person";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import DataField from "../../Components/Fields/DataField";
 import InputField from "../../Components/Fields/InputField";
-
+import axios from "axios";
+import { useKeycloak } from "@react-keycloak/web"; // Adjust import based on your Keycloak setup
+import { useGetUserData } from "../../hooks/useGetUserData";
 const Parameters = () => {
-  // Mock data for parameters
-  const [generalSettings, setGeneralSettings] = useState({
-    name: "Bahri Chaher",
-    email: "contact@proxym.com",
-    phoneNumber: "+216 71 123 456",
-    groupe: "BEST",
-    role: "Admin",
-  });
-
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    reportUpdates: true,
-    budgetAlerts: false,
-    teamChanges: true,
-  });
-
+  const { keycloak } = useKeycloak();
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState({open:false,message:''}); 
   const [isSaved, setIsSaved] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
   const [activeSection, setActiveSection] = useState("info");
+  const {userData,loading,error}=useGetUserData();
 
+  // default data for parameters
+  // const [userData, setuserData] = useState({
+  //     id: null,
+  //     name: "Bahri Chaher",
+  //     email: "contact@proxym.com",
+  //     phoneNumber: "+216 71 123 456",
+  //     groupe: "BEST",
+  //     role: "Admin",
+  //     photo:avatarPreview,
+  // });
+
+    
+  // Fetch user data when component mounts
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.get(`http://localhost:3000/api/user/email/${keycloak.tokenParsed.email}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${keycloak.token}`
+  //         }
+  //       });
+        
+  //       const userData = response.data.user;
+  //       setuserData(prev => ({
+  //         ...prev,
+  //         id: userData._id,
+  //         name: userData.name,
+  //         email: userData.email || userData.email,
+  //         phoneNumber: userData.phone || 'Not Provided',
+  //         groupe: userData.groupe || 'Not Assigned',
+  //         role: keycloak.realmAccess.roles || '',
+  //       }));
+  //       setAvatarPreview(userData.photo?.data || '/myAvatar.png');
+        
+  //       setLoading(false);
+  //     } catch (err) {
+  //       console.error('Error fetching user data:', err);
+  //       setError({open:true,message:'Failed to load user data. Please try again later.'});
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (keycloak.authenticated) {
+  //     fetchUserData();
+  //   }
+  // }, [keycloak.authenticated, keycloak.token]);
+
+
+  
+  const [form, setForm] = useState({
+    name: userData.name,
+    email: userData.email,
+    phoneNumber: userData.phoneNumber || '',
+  });
+  //update the form data when the genral settings are fetched
+  useEffect(() => {
+    setForm({
+      name: userData.name,
+      email: userData.email,
+      phoneNumber: userData.phoneNumber,
+    });
+  }, [userData]);
+
+ 
   /* test with th image upload TODO chage it */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -50,20 +105,58 @@ const Parameters = () => {
     }
   };
 
-  const handleGeneralSettingsChange = (e) => {
-    setGeneralSettings({
-      ...generalSettings,
-      [e.target.name]: e.target.value,
-    });
-    setIsSaved(false);
+
+  const handleSaveSettings = async () => {
+    // Check if any fields have changed
+    const hasChanges =
+      (form.name !== userData.name && form.name !== "") ||
+      (form.email !== userData.email && form.email !== "") ||
+      (form.phoneNumber !== userData.phoneNumber &&
+        form.phoneNumber !== null);
+    if (!hasChanges) {
+      console.log("No changes to save");
+      setError({ open: true, message: "Aucun changement a enregistrer" });
+
+      return;
+    }
+    try {
+      setLoading(true);
+
+      // Make API call to update user settings
+      await axios.patch(
+        `http://localhost:3000/api/user/${userData.id}`,
+        {
+          name: form.name,
+          email: form.email,
+          phone: form.phoneNumber,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+
+      setIsSaved(true);
+      setLoading(false);
+      setuserData((prev) => ({
+        ...prev,
+        name: form.name,
+        email: form.email,
+        phoneNumber: form.phoneNumber,
+      }));
+    } catch (err) {
+      console.error("Error saving settings:", err);
+      setError({
+        open: true,
+        message: "Failed to save settings. Please try again.",
+      });
+      setLoading(false);
+    }
   };
 
-  const handleSaveSettings = () => {
-    // Mock API call to save settings
-    console.log("Saving settings:", { generalSettings, notificationSettings });
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
-  };
+
+
 
   return (
     <Box sx={{ mb: 4 }}>
@@ -72,10 +165,13 @@ const Parameters = () => {
       </Typography>
 
       {isSaved && (
-        <Alert severity="success" sx={{ mb: 2 }}>
+        <Alert severity="success" sx={{ mb: 2 ,padding:"16px 16px"}}>
           Paramètres enregistrés avec succès!
         </Alert>
       )}
+      {error.open && (
+        <Alert severity="error" sx={{ mb: 2,fontSize:'1.2rem',padding:"16px 16px",alignItems:"center" }} onClose={() => setError({open:false,message:''})}> {error.message}
+          </Alert>)}
 
       <Grid container spacing={3}>
         <Grid item xs={10} md={4}>
@@ -93,14 +189,14 @@ const Parameters = () => {
                 />
               </Box>
               <Grid container spacing={2}>
-                <DataField label="Nom" value={generalSettings.name} />
-                <DataField label="Email" value={generalSettings.email} />
+                <DataField label="Nom" value={userData.name} />
+                <DataField label="Email" value={userData.email} />
                 <DataField
                   label="Numéro de téléphone"
-                  value={generalSettings.phoneNumber}
+                  value={userData.phoneNumber}
                 />
-                <DataField label="Groupe" value={generalSettings.groupe} />
-                <DataField label="Role" value={generalSettings.role} />
+                <DataField label="Groupe(s)" value={userData.groupe} />
+                <DataField label="Role(s)" value={userData.role} />
 
               </Grid>
               <Stack spacing={2} sx={{ mb: 3 }}>
@@ -141,20 +237,27 @@ const Parameters = () => {
                   <InputField
                     label="Nom"
                     name="name"
-                    value={generalSettings.name}
-                    onChange={handleGeneralSettingsChange}
+                    placeholder="Prenom Nom"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+
                   />
                   <InputField
                     label="Email"
                     name="email"
-                    value={generalSettings.email}
-                    onChange={handleGeneralSettingsChange}
+                    placeholder="Nouveau Email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+
                   />
                   <InputField
                     label="Numéro de téléphone"
                     name="phoneNumber"
-                    value={generalSettings.phoneNumber}
-                    onChange={handleGeneralSettingsChange}
+                    placeholder="Nouveau Numéro de téléphone"
+                    value={form.phoneNumber}
+                    onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                  type="number"
+
                   />
                   
                 </Grid>
@@ -236,3 +339,22 @@ const Parameters = () => {
 
 export default Parameters;
 
+
+
+
+  // useEffect(() => {
+  //   const fetchUserPhoto = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:3000/api/user/avatar/${keycloak.tokenParsed.email}`, {
+  //         headers: {  
+  //           Authorization: `Bearer ${keycloak.token}`
+  //         }
+  //       });
+  //       const userPhoto = response.data.image;
+  //       setAvatarPreview(userPhoto);
+  //     } catch (error) {
+  //       console.error("Error fetching user photo:", error);
+  //     }
+  //   };
+  //   fetchUserPhoto();
+  // }, [keycloak.token]);
