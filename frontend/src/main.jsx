@@ -10,14 +10,14 @@ import axios from 'axios';
 const tokenLogger = (tokens) => {
   console.log('onKeycloakTokens', tokens);
 };
-const saveUserData = async (token) => {
+const syncUserData = async (token) => {
   try {
     const response = await axios.put('http://localhost:3000/api/user/sync', {}, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log('Operation successful:', response.data.message);
+    console.log('Operation successful:', response.data.user);
   } catch (error) {
     console.error('Error saving user data:', error);
   }
@@ -26,7 +26,7 @@ const handleKeycloakEvent = (event, error) => {
   if (event === 'onAuthSuccess' && keycloak.authenticated) {
     console.log('User authenticated successfully');
     console.log('onKeycloakEvent', event, error);
-    saveUserData(keycloak.token);
+    syncUserData(keycloak.token);
   }
 };
 

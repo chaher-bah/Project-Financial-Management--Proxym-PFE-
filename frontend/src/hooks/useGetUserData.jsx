@@ -22,7 +22,6 @@ export const useGetUserData = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!initialized || !keycloak.authenticated) return;
-      console.log(keycloak.tokenParsed);
       try {
         setLoading(true);
         const response = await axios.get(
@@ -34,6 +33,7 @@ export const useGetUserData = () => {
           }
         );
         const user = response.data.user;
+        console.log("operation fetch:",response.data.message);
         setUserData(prev => ({
           ...prev,
           id: user._id,
@@ -41,16 +41,16 @@ export const useGetUserData = () => {
           email: user.email || userData.email,
           phoneNumber: user.phone || "Not Provided",
           groupe: user.groupe || "Not Assigned",
-          role: keycloak.realmAccess.roles || "",
+          role: Array.isArray(keycloak.realmAccess?.roles) ? keycloak.realmAccess.roles : [],
         }));
         setAvatarPreview(user.photo || "/myAvatar.png");
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError({
           open: true,
           message: "Failed to load user data. Please try again later.",
         });
-        setLoading(false);
       }
     };
     fetchUserData();

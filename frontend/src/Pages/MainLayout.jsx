@@ -1,10 +1,21 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet ,useLocation,useNavigate} from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import Navbar from "../Components/Navbar/Navbar";
-
+import { useGetUserData } from "../hooks/useGetUserData";
+import { checkUserAccess } from "../utils/roles";
 const MainLayout = () => {
+  const { userData,loading } = useGetUserData();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path =location.pathname;
+  const userRoles = userData?.role||[];
+  const hasNoAccess = !checkUserAccess(userRoles) && path!=='/error';
+  if (hasNoAccess) {
+    navigate('/error', { replace: true });
+    return null;
+  }
   return (
     <Box
       sx={{

@@ -18,10 +18,9 @@ import DataField from "../../Components/Fields/DataField";
 import InputField from "../../Components/Fields/InputField";
 import { useKeycloak } from "@react-keycloak/web"; // Adjust import based on your Keycloak setup
 import { useGetUserData } from "../../hooks/useGetUserData";
+import Loader from "../../Components/Loader/Loader";
 const Parameters = () => {
   const { keycloak } = useKeycloak();
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState({open:false,message:''}); 
   const [isSaved, setIsSaved] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
   const [activeSection, setActiveSection] = useState("info");
@@ -129,7 +128,8 @@ const Parameters = () => {
   };
 
 
-  return (
+  return <>
+    {loading ? <Loader/> : (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ m: 3 }}>
         Paramètres
@@ -213,14 +213,7 @@ const Parameters = () => {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
 
                   />
-                  {/* <InputField
-                    label="Email"
-                    name="email"
-                    placeholder="Nouveau Email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-
-                  /> */}
+                  
                   <InputField
                     label="Numéro de téléphone"
                     name="phoneNumber"
@@ -304,7 +297,7 @@ const Parameters = () => {
         </Grid>
       </Grid>
     </Box>
-  );
+  )}</>;
 };
 
 export default Parameters;

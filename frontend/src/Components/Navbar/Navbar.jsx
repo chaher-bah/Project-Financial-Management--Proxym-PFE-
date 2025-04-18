@@ -11,7 +11,6 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
   return (
     <div className="navbarContainer">
       <div className="navbarUser" onClick={toggleDropdown}>
