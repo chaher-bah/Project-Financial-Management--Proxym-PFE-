@@ -16,7 +16,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import DataField from "../../Components/Fields/DataField";
 import InputField from "../../Components/Fields/InputField";
-import axios from "axios";
 import { useKeycloak } from "@react-keycloak/web"; // Adjust import based on your Keycloak setup
 import { useGetUserData } from "../../hooks/useGetUserData";
 const Parameters = () => {

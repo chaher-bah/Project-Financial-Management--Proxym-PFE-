@@ -76,12 +76,15 @@
 
 .profileOptions {
   border-top: 1px solid #ddd;
+  
   padding-top: 10px;
 }
 
 .profileOption {
-  padding: 10px 0;
-  cursor: pointer;
+  padding: 10px ;
+  margin-bottom: 1rem;
+  cursor: pointer;  border-bottom: 1px solid #ddd;
+
 }
 
 .profileOption span {
