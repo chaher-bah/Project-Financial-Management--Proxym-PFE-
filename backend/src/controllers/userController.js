@@ -167,9 +167,9 @@ exports.syncUser = async (req, res) => {
       keyId: keycloakUser.sub,
       phone: existingUser?.phone || '',
       groupe: existingUser?.groupe || 'Not Assigned',
-      role: existingUser?.role || 'User'
+      role: keycloakUser.realm_access?.roles || existingUser?.role ||  [],
     };
-
+    console.log(userData.role);
     const user = existingUser 
       ? await User.findByIdAndUpdate(existingUser._id, userData, { new: true })
       : await User.create(userData);

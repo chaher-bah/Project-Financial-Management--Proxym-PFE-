@@ -3,7 +3,6 @@ const userSchema = new mongoose.Schema({
     keyId: {
         type: String,
         required: true,
-        unique: true,
     },
     name: {
         type: String,
@@ -17,18 +16,14 @@ const userSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        validate: {
-            validator: function(v) {
-                return /^\+(?:[0-9] ?){6,14}[0-9]$/.test(v);
-            },
-            message: props => `${props.value} is not a valid phone number!`
-        }
-
     },
     photo: {
-        type: Buffer,
+        data: Buffer,
         contentType: String,
-    }
+    },
+    role: {
+        type: [String], 
+    },
 });
 
 module.exports= mongoose.model("User", userSchema);
