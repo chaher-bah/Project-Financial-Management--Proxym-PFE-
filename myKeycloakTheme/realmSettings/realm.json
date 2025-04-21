@@ -35,7 +35,6 @@
   },
   "users": [
     {
-      "username": "Platforme Admin",
       "email": "paypalbahrichaher@gmail.com",
       "enabled": true,
       "emailVerified": true,
@@ -49,7 +48,7 @@
       ],
       "realmRoles": ["Admin"],
       "clientRoles": {
-        "realm-management": ["query-users", "view-users"]
+        "realm-management": ["query-users", "view-users","realm-admin"]
       }
     }
   ],

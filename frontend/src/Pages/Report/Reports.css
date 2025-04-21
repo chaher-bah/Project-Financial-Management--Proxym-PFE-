@@ -50,6 +50,7 @@
 .reports-table td {
     padding: 16px;
     border-bottom: 1px solid #eee;
+    color: var(--black-color);
 }
 
 .reports-table tr:last-child td {

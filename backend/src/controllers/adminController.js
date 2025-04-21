@@ -62,4 +62,22 @@ exports.deleteUser = async (req, res) => {
         .json({ message: "Error deleting user", error: error.message });
     }
   };
-  
+  // to get keycloak user token
+  exports.getKeycloakAdminToken = async function() {
+    try{
+      const response = await axios.post('http://localhost:8080/realms/Proxym-IT/protocol/openid-connect/token', {
+        'grant_type': 'password',
+        'client_id': 'pfeFRONT',
+        'username': 'paypalbahrichaher@gmail.com',
+        'password': 'admin',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      return response.data.access_token;
+    } catch(error){
+      throw new Error("Error fetching Keycloak admin token:", error);
+    }
+  };

@@ -1,18 +1,59 @@
 const User = require("../models/user.js");
 const axios = require("axios");
 const avatar=("../../../frontend/public/myAvatar.png");
+const admincontroller = require("./adminController.js");
+
+
+// Function to update the user in Keycloak
+async function updateKeycloakUser(keycloakUserId, newName,newFamilyName, token) {
+  try {
+    await axios.put(`http://localhost:8080/admin/realms/Proxym-IT/users/${keycloakUserId}`, {
+      firstName: newName,
+      lastName: newFamilyName,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  } catch (error) {
+    throw new Error('Failed to update user in Keycloak');
+  }
+}
+// Function to find a user in Keycloak
+async function findKeycloakUser(email, token) {
+  try {
+    const response = await axios.get(`http://localhost:8080/admin/realms/Proxym-IT/users?email=${email}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log("keycloak user",response);
+    return response.data[0]; // Returns the first matching user
+  } catch (error) {
+    throw new Error('Failed to find user in Keycloak');
+  }
+}
 
 
 //to update the user info in the database
 exports.updateUser = async (req, res) => {
+  
   try {
     const { userId } = req.params;
-    const { name,phone } = req.body;
-    console.log(name,phone)
-    const user = await User.findByIdAndUpdate(userId, { name,phone }, { new: true });
+    const { firstName,familyName,phone } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { firstName,familyName,phone }, { new: true });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    //update in keycloak
+    const token = await admincontroller.getKeycloakAdminToken();
+    const keyUser= await findKeycloakUser(req.kauth.grant.access_token.content.email, token)
+    if (keyUser) {
+      await updateKeycloakUser(keyUser.id,firstName,familyName, token); // Update name in Keycloak
+    } else {
+      console.warn('User not found in Keycloak');
+    }
+
     res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -58,13 +99,14 @@ exports.getUserPhoto = async (req, res) => {
 //to Create or update user in the database
 exports.createUserFromKeycloak = async (req, res) => {
   try {
-    const { email, name,sub } = req.kauth.grant.access_token.content;
+    const { email, firstName,familyName,sub } = req.kauth.grant.access_token.content;
     let user =await User.findOne({email:email});
     // Check if the user already exists in the database
     if (user != null) {
       // If the user exists, update their information
       user.keyId = sub;
-      user.name = name;
+      user.firstName = firstName;
+      user.familyName= familyName;
       user.email = email;
       // user.photo = avatar;
       await user.save();
@@ -73,7 +115,8 @@ exports.createUserFromKeycloak = async (req, res) => {
       //create new user
       user = new User({
         keyId: sub,
-        name: name,
+        firstName: firstName,
+        familyName:familyName,
         email: email,
         // photo: avatar,
       });
@@ -97,7 +140,8 @@ exports.getCurrentKeycloakUser = async (req, res) => {
     const token = req.kauth.grant.access_token.content;
     const keycloakId = token.sub; // Keycloak user ID
     const email = token.email;
-    const name = token.name;
+    const familyName = token.familyName;
+    const firstName =token.firstName;
     const roles = token.realm_access?.roles || [];
 
     const user = await User.findOne({ email: email });
@@ -106,7 +150,8 @@ exports.getCurrentKeycloakUser = async (req, res) => {
       keyId: keycloakId, // Keycloak ID
       email: email,
       roles: roles,
-      name: name,
+      firstName:firstName,
+      familyName:familyName,
       user: user,
       
     });
@@ -162,7 +207,8 @@ exports.syncUser = async (req, res) => {
 
     // Merge data: DB values take priority over Keycloak values
     const userData = {
-      name: existingUser?.name || keycloakUser.name,
+      firstName: existingUser?.firstName || keycloakUser.firstName,
+      familyName: existingUser?.familyName || keycloakUser.familyName,
       email: keycloakUser.email,
       keyId: keycloakUser.sub,
       phone: existingUser?.phone || '',
@@ -180,6 +226,19 @@ exports.syncUser = async (req, res) => {
     res.status(500).json({ message: "Error syncing user", error: error.message });
   }
 };
+
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({message:"users from DB",users:users});
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching users", error: error.message });
+  }
+};
+
+
 
 
 // exports.updateUserDetails = async (req, res) => {

@@ -14,7 +14,7 @@ const Navbar = () => {
   return (
     <div className="navbarContainer">
       <div className="navbarUser" onClick={toggleDropdown}>
-        <span>Hi, {userData.name}</span>
+        <span>Hi, {userData.firstName}</span>
         <div className="navbarUserIcon">
           <Avatar className="navbarAvatarIcon" src="/myAvatar.png" />
         </div>
@@ -28,7 +28,7 @@ const Navbar = () => {
                 src={userData.photo}
                 sx={{ width: 70, height: 70, mr: 3 }}
               /><div>
-              <div className="profileName">{userData.name}</div>
+              <div className="profileName">{userData.firstName} {userData.familyName.toUpperCase()}</div>
               <div className="profileRole" style={{fontWeight:"lighter",fontStyle:"italic"}}>{userData.role}</div></div>
             </div>
             <div className="profileOptions">

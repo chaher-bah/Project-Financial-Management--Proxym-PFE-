@@ -4,7 +4,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    name: {
+    firstName: {
+        type: String,
+        required: true,
+    },
+    familyName: {
         type: String,
         required: true,
     },

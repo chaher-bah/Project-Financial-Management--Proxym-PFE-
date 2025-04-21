@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController.js'); 
 
 // User Route
+router.get('/', userController.getUsers);
 router.get('/me', userController.getCurrentKeycloakUser);
 router.post('/create', userController.createUserFromKeycloak);
 router.get('/:userId', userController.getUserById);

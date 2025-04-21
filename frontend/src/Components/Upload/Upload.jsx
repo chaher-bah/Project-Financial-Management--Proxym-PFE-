@@ -10,12 +10,15 @@ import {
   Typography,
   Paper,
   Chip,
+  Alert,
   OutlinedInput,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import "./Upload.css";
 import DocumentCardContainer from "../DocumentCards/DocumentCardContainer";
-
+import { useGetUserData } from "../../hooks/useGetUserData";
+import { useDocs } from "../../hooks/useDocs";
+import { useEffect } from "react";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -39,12 +42,34 @@ function getStyles(name, selectedNames, theme) {
 const Upload = () => {
   const theme = useTheme();
   const [files, setFiles] = useState([]);
+  const [info,setInfo]=useState({message:"",type:"success"});
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
-  const [secondDestination, setSecondDestination] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const {getAllUsers,userData}=useGetUserData();
+  const [users, setUsers] = useState([]);
+  const {uploadFiles,loading}=useDocs();
+  const UPLOADERID=userData.id;
+  // Fetch all users name
+  useEffect(()=>{
+    const fetchUsers = async () => {
+      const response = await getAllUsers();
+      if (response.users) {
+        setUsers(response.users);
+      }
+    };
+    fetchUsers();
+  },[]);
+  console.log("users",users);
+  // const collaborators = ["John Smith", "Maria Garcia", "Ahmed Khan", "Sarah Lee", "Carlos Rodriguez"];
 
-  // Will be replaced with actual API calls later
-  const collaborators = ["John Smith", "Maria Garcia", "Ahmed Khan", "Sarah Lee", "Carlos Rodriguez"];
+  // Helper function to get user names from IDs
+  const getUserNames = (ids) => {
+    return ids.map((id) => {
+      const user = users.find((u) => u._id === id);
+      return user ? user.name : "";
+    });
+  };
+
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -62,18 +87,45 @@ const Upload = () => {
     );
   };
 
-  const handleUpload = () => {
-    // Upload logic will be implemented later
-    console.log({
-      files,
-      collaborators: selectedCollaborators,
-      secondDestination,
-      dueDate,
-    });
+  const handleUpload = async() => {
+    
+    //user is loaded
+    if (!UPLOADERID) {
+      setInfo({message:"Données Utilisateur erronée",type:"error"});
+      return;
+    }
+    //validate inputs
+    if (files.length === 0 || selectedCollaborators.length === 0 || !dueDate) {
+      setInfo({message:"Veuillez remplir tous les champs",type:"warning"});
+      return;
+    }
+    //upload files
+    try{
+      const success=await uploadFiles(files, selectedCollaborators, dueDate,UPLOADERID);
+      //reset form
+      setFiles([]);
+      setSelectedCollaborators([]);
+      setDueDate("");
+      
+        setInfo({message:"Fichiers importés avec succès",type:"success"});
+      
+    }catch(error){
+      console.error("Error uploading files:", error);
+      setInfo({message:"Erreur lors de l'importation des fichiers",type:"error"});
+    }
   };
 
   return (
     <>
+      {info.message && (
+        <Alert
+          severity={info.type}
+          onClose={() => setInfo({message:"",type:"success"})}
+          sx={{ width: "100%", marginBottom: "16px" }}
+        >
+          {info.message}
+        </Alert>
+      )}
       <Paper className="upload-container" elevation={0}>
         <Typography variant="h5" className="upload-title">
           Importer les fichiers
@@ -114,21 +166,21 @@ const Upload = () => {
                 input={<OutlinedInput />}
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value} size="small" />
+                    {getUserNames(selected).map((name) => (
+                      <Chip key={name} label={name} size="small" />
                     ))}
                   </Box>
                 )}
                 displayEmpty
                 MenuProps={MenuProps}
               >
-                {collaborators.map((name) => (
+                {users.map((user) => (
                   <MenuItem
-                    key={name}
-                    value={name}
-                    style={getStyles(name, selectedCollaborators, theme)}
+                    key={user._id}
+                    value={user._id}
+                    style={getStyles(user._id, selectedCollaborators, theme)}
                   >
-                    {name}
+                    {user.name}
                   </MenuItem>
                 ))}
               </Select>
@@ -154,6 +206,7 @@ const Upload = () => {
             variant="contained"
             className="upload-button"
             onClick={handleUpload}
+            disabled={loading||!UPLOADERID}
           >
             Importer
           </Button>

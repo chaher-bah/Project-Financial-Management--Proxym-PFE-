@@ -27,14 +27,16 @@ const Parameters = () => {
   const {userData,loading,error,setError, saveUserData}=useGetUserData();
 
   const [form, setForm] = useState({
-    name: userData.name,
+    firstName: userData.firstName,
+    familyName:userData.familyName,
     email: userData.email,
     phoneNumber: userData.phoneNumber || '',
   });
   //update the form data when the genral settings are fetched
   useEffect(() => {
     setForm({
-      name: userData.name,
+      firstName: userData.firstName,
+      familyName:userData.familyName,
       email: userData.email,
       phoneNumber: userData.phoneNumber,
     });
@@ -106,7 +108,8 @@ const Parameters = () => {
   const handleSaveSettings = async () => {
     // Check for changes
     const hasChanges =
-      (form.name !== userData.name && form.name !== "") ||
+      (form.firstName !== userData.firstName && form.firstName !== "") ||
+      (form.familyName !== userData.familyName && form.familyName !== "") ||
       (form.email !== userData.email && form.email !== "") ||
       (form.phoneNumber !== userData.phoneNumber && form.phoneNumber !== null);
 
@@ -117,7 +120,8 @@ const Parameters = () => {
     }
 
     const success = await saveUserData({
-      name: form.name,
+      firstName: form.firstName,
+      familyName:form.familyName,
       email: form.email,
       phone: form.phoneNumber,
     });
@@ -136,7 +140,7 @@ const Parameters = () => {
       </Typography>
 
       {isSaved && (
-        <Alert severity="success" sx={{ mb: 2 ,padding:"16px 16px"}}>
+        <Alert severity="success" sx={{ mb: 2,fontSize:'1.2rem',padding:"16px 16px",alignItems:"center" }}>
           Paramètres enregistrés avec succès!
         </Alert>
       )}
@@ -160,7 +164,7 @@ const Parameters = () => {
                 />
               </Box>
               <Grid container spacing={2}>
-                <DataField label="Nom" value={userData.name} />
+                <DataField label="Nom" value={`${userData.firstName}  ${userData.familyName.toUpperCase()}`} />
                 <DataField label="Email" value={userData.email} />
                 <DataField
                   label="Numéro de téléphone"
@@ -208,9 +212,15 @@ const Parameters = () => {
                   <InputField
                     label="Nom"
                     name="name"
-                    placeholder="Prenom Nom"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Nom"
+                    onChange={(e) => setForm({ ...form, familyName: e.target.value })}
+
+                  />
+                   <InputField
+                    label="Prenom"
+                    name="firstName"
+                    placeholder="Prenom"
+                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
 
                   />
                   

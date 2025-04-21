@@ -10,7 +10,8 @@ export const useGetUserData = () => {
 
   const [userData, setUserData] = useState({
     id: null,
-    name: "Bahri Chaher",
+    familyName: "Bahri",
+    firstName: "chaher",
     email: "contact@proxym.com",
     phoneNumber: "+216 71 123 456",
     groupe: "BEST",
@@ -37,7 +38,8 @@ export const useGetUserData = () => {
         setUserData(prev => ({
           ...prev,
           id: user._id,
-          name: user.name,
+          familyName: user.familyName || userData.familyName,
+          firstName: user.firstName || userData.firstName,
           email: user.email || userData.email,
           phoneNumber: user.phone || "Not Provided",
           groupe: user.groupe || "Not Assigned",
@@ -87,6 +89,30 @@ export const useGetUserData = () => {
     }
   };
 
+  //Get all users
+  const getAllUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:3000/api/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      console.log("operation fetch:",response.data.message);
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError({
+        open: true,
+        message: "Failed to load user data. Please try again later.",
+      });
+    }
+  };
+
 
   return {
     userData,
@@ -95,6 +121,7 @@ export const useGetUserData = () => {
     setError,
     saveUserData,
     updateUser:setUserData,
+    getAllUsers,
   };
 
 
