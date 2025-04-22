@@ -27,6 +27,10 @@ const uploadSchema = new mongoose.Schema({
     type: [fileSubSchema],
     validate: files => files.length > 0,
   },
+  comnts: {
+    type: String,
+    default: "",
+  },
 }, {
   timestamps: true,
 });

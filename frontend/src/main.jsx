@@ -25,7 +25,7 @@ const syncUserData = async (token) => {
 const handleKeycloakEvent = (event, error) => {
   if (event === 'onAuthSuccess' && keycloak.authenticated) {
     console.log('User authenticated successfully');
-    console.log('onKeycloakEvent', event, error);
+    console.log('onKeycloakEvent', event, "Error:",error);
     syncUserData(keycloak.token);
   }
 };

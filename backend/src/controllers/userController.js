@@ -204,18 +204,16 @@ exports.syncUser = async (req, res) => {
   try {
     const keycloakUser = req.kauth.grant.access_token.content; // Keycloak token data
     const existingUser = await User.findOne({ email: keycloakUser.email });
-
     // Merge data: DB values take priority over Keycloak values
     const userData = {
-      firstName: existingUser?.firstName || keycloakUser.firstName,
-      familyName: existingUser?.familyName || keycloakUser.familyName,
+      firstName: existingUser?.firstName || keycloakUser.given_name,
+      familyName: existingUser?.familyName || keycloakUser.family_name,
       email: keycloakUser.email,
       keyId: keycloakUser.sub,
       phone: existingUser?.phone || '',
       groupe: existingUser?.groupe || 'Not Assigned',
       role: keycloakUser.realm_access?.roles || existingUser?.role ||  [],
     };
-    console.log(userData.role);
     const user = existingUser 
       ? await User.findByIdAndUpdate(existingUser._id, userData, { new: true })
       : await User.create(userData);

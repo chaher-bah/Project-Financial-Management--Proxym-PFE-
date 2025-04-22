@@ -1,5 +1,6 @@
 const Upload = require("../models/upload");
 const User = require("../models/user");
+const mongoose = require("mongoose");
 
 exports.uploadFile = async (req, res) => {
   try {
@@ -25,10 +26,7 @@ exports.uploadFile = async (req, res) => {
     if (!dueDate || !recipients || !uploader) {
       return res.status(400).json({ message: "Missing required fields" });
     }
-
-    //TO DO :SOLVE THE UPLOADERE ID/EMAIL
-
-    // .map((recipient) => recipient._id);
+    const comnts = req.body.comments;
     // Validate recipients exist
     const existingRecipients = await User.find({
       _id: { $in: recipients },
@@ -49,6 +47,7 @@ exports.uploadFile = async (req, res) => {
       recipients: recipients,
       dueDate: new Date(dueDate),
       files: files,
+      comnts: comnts,
     });
 
     await upload.save();
@@ -60,3 +59,62 @@ exports.uploadFile = async (req, res) => {
       .json({ message: "Error uploading files", error: error.message });
   }
 };
+// Get all uploads for a specific uploader
+exports.getUploaderUploads = async (req, res) => {
+  try {
+    const { uploaderId } = req.params;
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(uploaderId)) {
+      return res.status(400).json({ message: "Invalid uploader ID format" });
+
+    }
+    // Check if uploader exists
+    const uploader = await User.findById(uploaderId);
+    if (!uploader) {
+      return res.status(404).json({ message: "Uploader not found" });
+    }
+    
+    const uploads = await Upload.find({ uploader: uploaderId })
+      .populate("recipients", "firstName familyName email")
+      .populate("uploader", "firstName familyName email")
+      .exec();
+    
+    res.status(200).json({ 
+      message: "Uploads fetched successfully", 
+      count: uploads.length,
+      uploads 
+    });
+  } catch (error) {
+    console.error("Error fetching uploads:", error);
+    res.status(500).json({ message: "Error fetching uploads", error: error.message });
+  }
+};
+// get  uploads for a specific recipient 
+exports.getRecipientUploads = async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(recipientId)) {
+      return res.status(400).json({ message: "Invalid recipient ID format" });
+    }
+    // Check if recipient exists
+    const recipient = await User.findById(recipientId);
+    if (!recipient) {
+      return res.status(404).json({ message: "Recipient not found" });
+    }
+    
+    const uploads = await Upload.find({ recipients: recipientId })
+      .populate("recipients", "firstName familyName email")
+      .populate("uploader", "firstName familyName email")
+      .exec();
+    
+    res.status(200).json({ 
+      message: "Uploads fetched successfully (recipient)", 
+      count: uploads.length,
+      uploads 
+    });
+  } catch (error) {
+    console.error("Error fetching uploads:", error);
+    res.status(500).json({ message: "Error fetching uploads", error: error.message });
+  }
+}

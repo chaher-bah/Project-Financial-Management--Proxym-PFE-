@@ -8,7 +8,12 @@ const storage = multer.diskStorage({
     filename: (req, file, callback) => {
         // Assuming req.user.name is available from your authentication middleware
         const userName = req.kauth.grant.access_token.content ? req.kauth.grant.access_token.content.name : 'unknown'
-        callback(null, userName + '-' + file.originalname)
+        
+        // Get current date and format it
+        const date = new Date()
+        const formattedDate = date.toISOString().substring(0, 13).replace('T', 'H')
+        
+        callback(null, userName + '-' + ' (' + formattedDate + ')'+file.originalname)
     }
 })
 const upload = multer({ storage: storage })
