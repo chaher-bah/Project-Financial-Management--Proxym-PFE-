@@ -7,9 +7,7 @@ import Loader from "../Components/Loader/Loader";
 // Lazy-loaded components
 const Reports = lazy(() => import("../Pages/Report/Reports"));
 const ApprovedReports = lazy(() => import("../Pages/Report/ApprovedReports"));
-const NotApprovedReports = lazy(() =>
-  import("../Pages/Report/NotApprovedReports")
-);
+const RejectedReports = lazy(() =>import("../Pages/Report/RejectedReports"));
 const Parameters = lazy(() => import("../Pages/Settings/Parameters"));
 
 const Routes = createBrowserRouter([
@@ -41,7 +39,7 @@ const Routes = createBrowserRouter([
         path: "reports/rejected",
         element: (
           <Suspense fallback={<Loader />}>
-            <NotApprovedReports />
+            <RejectedReports />
           </Suspense>
         ),
       },

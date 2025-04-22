@@ -46,12 +46,58 @@ export const useDocs = () => {
             });
         }
     };
-
+    //get the Uploader files
+    const getMyFiles = async (uploaderId) => {
+        setLoading(true);
+        try{
+            const response = await axios.get(
+                `http://localhost:3000/api/upload/getAll/${uploaderId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            setLoading(false);
+            return response.data;
+        }catch(error){
+            console.error("Error fetching uploader files:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to fetch uploader files. Please try again.",
+            });
+        }
+    };
+    //get files sent to me
+    const getFilesSentToMe = async (userId) => {
+        setLoading(true);
+        try{
+            const response = await axios.get(
+                `http://localhost:3000/api/upload/getRecieved/${userId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            setLoading(false);
+            return response.data;
+        }catch(error){
+            console.error("Error fetching files sent to me:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to fetch files sent to me. Please try again.",
+            });
+        }
+    };
 
 
     return{
         loading,
         error,
         uploadFiles,
+        getMyFiles,
     }
 }

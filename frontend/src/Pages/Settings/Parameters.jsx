@@ -25,7 +25,6 @@ const Parameters = () => {
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
   const [activeSection, setActiveSection] = useState("info");
   const {userData,loading,error,setError, saveUserData}=useGetUserData();
-
   const [form, setForm] = useState({
     firstName: userData.firstName,
     familyName:userData.familyName,

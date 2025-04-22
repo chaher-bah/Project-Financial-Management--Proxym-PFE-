@@ -112,6 +112,29 @@ export const useGetUserData = () => {
       });
     }
   };
+  //Get user by id
+  const getUserById = async (id) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:3000/api/user/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      console.log("operation fetch:",response.data.message);
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError({
+        open: true,
+        message: "Failed to load user data. Please try again later.",
+      });
+    }
+  };
 
 
   return {
@@ -122,6 +145,7 @@ export const useGetUserData = () => {
     saveUserData,
     updateUser:setUserData,
     getAllUsers,
+    getUserById,
   };
 
 

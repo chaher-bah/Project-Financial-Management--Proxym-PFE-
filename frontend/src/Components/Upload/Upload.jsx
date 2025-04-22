@@ -44,6 +44,7 @@ const Upload = () => {
   const [files, setFiles] = useState([]);
   const [info, setInfo] = useState({ message: "", type: "success" });
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
+  const [refreshUploads, setRefreshUploads] = useState(0);
   const [dueDate, setDueDate] = useState("");
   const [comments, setComments] = useState("");
   const { getAllUsers, userData } = useGetUserData();
@@ -60,7 +61,6 @@ const Upload = () => {
     };
     fetchUsers();
   }, []);
-  // const collaborators = ["John Smith", "Maria Garcia", "Ahmed Khan", "Sarah Lee", "Carlos Rodriguez"];
 
   // Helper function to get user names from IDs
   const getUserNames = (ids) => {
@@ -122,6 +122,7 @@ const Upload = () => {
       setDueDate("");
 
       setInfo({ message: "Fichiers importés avec succès", type: "success" });
+      setRefreshUploads((prev) => prev + 1);
     } catch (error) {
       console.error("Error uploading files:", error);
       setInfo({
@@ -246,7 +247,7 @@ const Upload = () => {
           </Button>
         </Box>
       </Paper>
-      <DocumentCardContainer />
+      <DocumentCardContainer refreshTag={refreshUploads}/>
     </>
   );
 };

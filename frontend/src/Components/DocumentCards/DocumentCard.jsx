@@ -25,6 +25,13 @@ const DocumentCard = ({
   const handleExpand = () => {
     navigate(expandRoute);
   };
+  const scrollStyles =
+    documents.length > 5
+      ? {
+          maxHeight:  "250px",
+          overflowY: "auto",
+        }
+      : {};
 
   return (
     <Card
@@ -51,13 +58,13 @@ const DocumentCard = ({
               className="expand-button"
               onClick={handleExpand}
             >
-              Expand
+              Grandir
             </Button>
           </Box>
         }
         className="document-card-header"
       />
-      <CardContent className="document-card-content">
+      <CardContent className="document-card-content" sx={scrollStyles}>
         {documents.map((doc, index) => (
           <Grid
             container
@@ -65,26 +72,16 @@ const DocumentCard = ({
             className="document-row"
             alignItems="center"
           >
-            <Grid item xs={4} className="document-name">
+            <Grid item xs={6} className="document-name">
               <Typography variant="body1">{doc.fileName}</Typography>
             </Grid>
-            <Grid item xs={3} className="document-destination">
-              <Typography variant="body2">{doc.destination1}</Typography>
+            <Grid item xs={4} className="document-destination">
+              <Typography variant="body2">{doc.recipients}</Typography>
             </Grid>
-            <Grid item xs={3} className="document-destination">
-              <Typography variant="body2">{doc.destination2}</Typography>
-            </Grid>
-            <Grid item xs={2} className="document-action">
-              <Button
-                variant="contained"
-                color="primary"
-                className="open-button"
-                onClick={doc.onOpen}
-                style={{ backgroundColor: cardColor }}
-              >
-                Open
-              </Button>
-            </Grid>
+            {doc.creationDate && ( 
+            <Grid item xs={1} className="document-action">
+                <Typography variant="body2">{doc.creationDate}</Typography>
+            </Grid>)}
           </Grid>
         ))}
       </CardContent>

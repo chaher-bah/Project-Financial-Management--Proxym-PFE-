@@ -3,7 +3,7 @@ import { Container, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Reports.css";
 
-const NotApprovedReports = () => {
+const RejectedReports = () => {
   const navigate = useNavigate();
 
   // Sample data - in a real app, this would come from an API
@@ -44,6 +44,7 @@ const NotApprovedReports = () => {
       onOpen: () => console.log("Opening Client Presentation.pdf"),
     },
   ];
+  
 
   return (
     <Container className="reports-container">
@@ -97,4 +98,4 @@ const NotApprovedReports = () => {
   );
 };
 
-export default NotApprovedReports;
+export default RejectedReports;
