@@ -13,7 +13,7 @@ export const useDocs = () => {
 
 
     //Upload the files to the server
-    const uploadFiles= async (files, selectedCollaborators, dueDate,uploaderId) => {
+    const uploadFiles= async (files, selectedCollaborators, dueDate,uploaderId,comments) => {
         setLoading(true);
         try{
             const formData = new FormData();
@@ -23,6 +23,7 @@ export const useDocs = () => {
             formData.append("recipients", JSON.stringify(selectedCollaborators));
             formData.append("dueDate", dueDate);
             formData.append("uploader", uploaderId); 
+            formData.append("comments", comments);
             //request
             const response = await axios.post(
                 "http://localhost:3000/api/upload/send",

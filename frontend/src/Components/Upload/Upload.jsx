@@ -42,15 +42,16 @@ function getStyles(name, selectedNames, theme) {
 const Upload = () => {
   const theme = useTheme();
   const [files, setFiles] = useState([]);
-  const [info,setInfo]=useState({message:"",type:"success"});
+  const [info, setInfo] = useState({ message: "", type: "success" });
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [dueDate, setDueDate] = useState("");
-  const {getAllUsers,userData}=useGetUserData();
+  const [comments, setComments] = useState("");
+  const { getAllUsers, userData } = useGetUserData();
   const [users, setUsers] = useState([]);
-  const {uploadFiles,loading}=useDocs();
-  const UPLOADERID=userData.id;
+  const { uploadFiles, loading } = useDocs();
+  const UPLOADERID = userData.id;
   // Fetch all users name
-  useEffect(()=>{
+  useEffect(() => {
     const fetchUsers = async () => {
       const response = await getAllUsers();
       if (response.users) {
@@ -58,18 +59,16 @@ const Upload = () => {
       }
     };
     fetchUsers();
-  },[]);
-  console.log("users",users);
+  }, []);
   // const collaborators = ["John Smith", "Maria Garcia", "Ahmed Khan", "Sarah Lee", "Carlos Rodriguez"];
 
   // Helper function to get user names from IDs
   const getUserNames = (ids) => {
     return ids.map((id) => {
       const user = users.find((u) => u._id === id);
-      return user ? user.name : "";
+      return user ? user.firstName + user.familyName.toUpperCase() : "";
     });
   };
-
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -83,35 +82,52 @@ const Upload = () => {
     } = event;
     // On autofill we get a stringified value.
     setSelectedCollaborators(
-      typeof value === 'string' ? value.split(',') : value,
+      typeof value === "string" ? value.split(",") : value
     );
   };
 
-  const handleUpload = async() => {
-    
+  const handleUpload = async () => {
     //user is loaded
     if (!UPLOADERID) {
-      setInfo({message:"Données Utilisateur erronée",type:"error"});
+      setInfo({ message: "Données Utilisateur erronée", type: "error" });
       return;
     }
     //validate inputs
     if (files.length === 0 || selectedCollaborators.length === 0 || !dueDate) {
-      setInfo({message:"Veuillez remplir tous les champs",type:"warning"});
+      setInfo({ message: "Veuillez remplir tous les champs", type: "warning" });
+      return;
+    }
+    //validate date
+    const today = new Date();
+    const selectedDate = new Date(dueDate);
+    if (selectedDate < today) {
+      setInfo({
+        message: "La date limite ne peut pas être dans le passé",
+        type: "warning",
+      });
       return;
     }
     //upload files
-    try{
-      const success=await uploadFiles(files, selectedCollaborators, dueDate,UPLOADERID);
+    try {
+      const success = await uploadFiles(
+        files,
+        selectedCollaborators,
+        dueDate,
+        UPLOADERID,
+        comments
+      );
       //reset form
       setFiles([]);
       setSelectedCollaborators([]);
       setDueDate("");
-      
-        setInfo({message:"Fichiers importés avec succès",type:"success"});
-      
-    }catch(error){
+
+      setInfo({ message: "Fichiers importés avec succès", type: "success" });
+    } catch (error) {
       console.error("Error uploading files:", error);
-      setInfo({message:"Erreur lors de l'importation des fichiers",type:"error"});
+      setInfo({
+        message: "Erreur lors de l'importation des fichiers",
+        type: "error",
+      });
     }
   };
 
@@ -120,8 +136,13 @@ const Upload = () => {
       {info.message && (
         <Alert
           severity={info.type}
-          onClose={() => setInfo({message:"",type:"success"})}
-          sx={{ width: "100%", marginBottom: "16px" }}
+          onClose={() => setInfo({ message: "", type: "success" })}
+          sx={{
+            mb: 4,
+            fontSize: "1.2rem",
+            padding: "16px 16px",
+            alignItems: "center",
+          }}
         >
           {info.message}
         </Alert>
@@ -133,7 +154,7 @@ const Upload = () => {
 
         <Box className="upload-form">
           <Box className="form-field">
-            <Typography className="field-label">Fichiers</Typography>
+            <InputLabel className="field-label" required>Fichiers</InputLabel>
             <TextField
               placeholder="Choisir des fichiers"
               variant="outlined"
@@ -156,8 +177,8 @@ const Upload = () => {
           </Box>
 
           <Box className="form-field">
-            <InputLabel className="field-label">Collaborateurs</InputLabel>
-            <FormControl fullWidth size="small">
+            <InputLabel className="field-label" required>Collaborateurs</InputLabel>
+            <FormControl fullWidth size="small" required>
               <Select
                 multiple
                 placeholder="Sélectionner des collaborateurs"
@@ -165,7 +186,7 @@ const Upload = () => {
                 onChange={handleCollaboratorsChange}
                 input={<OutlinedInput />}
                 renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {getUserNames(selected).map((name) => (
                       <Chip key={name} label={name} size="small" />
                     ))}
@@ -180,7 +201,7 @@ const Upload = () => {
                     value={user._id}
                     style={getStyles(user._id, selectedCollaborators, theme)}
                   >
-                    {user.name}
+                    {user.firstName} {user.familyName}
                   </MenuItem>
                 ))}
               </Select>
@@ -188,7 +209,7 @@ const Upload = () => {
           </Box>
 
           <Box className="form-field">
-            <Typography className="field-label">Date limite</Typography>
+            <InputLabel className="field-label"required >Date limite</InputLabel>
             <TextField
               type="date"
               variant="outlined"
@@ -201,12 +222,25 @@ const Upload = () => {
               }}
             />
           </Box>
+          <Box className="form-field">
+            <Typography className="field-label">Commentaires</Typography>
+            <TextField
+              type="text"
+              placeholder="Ajouter des commentaires"
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={comments}
+              onChange={(e) => setComments(e.target.value)}
+
+            />
+          </Box>
 
           <Button
             variant="contained"
             className="upload-button"
             onClick={handleUpload}
-            disabled={loading||!UPLOADERID}
+            disabled={loading || !UPLOADERID}
           >
             Importer
           </Button>

@@ -9,10 +9,6 @@ const Reports = () => {
     setSelectedFile(event.target.files[0]);
   };
 
-  const handleUpload = () => {
-    // Handle file upload logic here
-    console.log("File uploaded:", selectedFile);
-  };
 
   return <div class="card">
     <Typography variant="h4" component="h1" gutterBottom sx={{m:2.5}}>

@@ -38,10 +38,42 @@ const Routes = createBrowserRouter([
         ),
       },
       {
-        path: "reports/notapproved",
+        path: "reports/rejected",
         element: (
           <Suspense fallback={<Loader />}>
             <NotApprovedReports />
+          </Suspense>
+        ),
+      },
+      {
+        path: "reports/sent",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Loader />
+          </Suspense>
+        ),
+      },
+      {
+        path: "reports/pending",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Loader />
+          </Suspense>
+        ),
+      },
+      {
+        path: "reports/consulted",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Loader />
+          </Suspense>
+        ),
+      },
+      {
+        path: "reports/revised",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Loader />
           </Suspense>
         ),
       },

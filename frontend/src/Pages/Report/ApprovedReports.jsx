@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Reports.css";
+import DataTable from "../../Components/DataTable/DataTable";
 
 const ApprovedReports = () => {
   const navigate = useNavigate();
@@ -10,90 +11,60 @@ const ApprovedReports = () => {
   const approvedDocuments = [
     {
       fileName: "Team Classification.txt",
-      destination1: "Mohammed",
-      destination2: "",
+      collaborateurs: "Mohammed, Bilel,Monji",
       date: "2023-03-15",
       onOpen: () => console.log("Opening Team Classification.txt"),
     },
     {
       fileName: "Best Team Rapport.xlsx",
-      destination1: "Bilel",
-      destination2: "",
+      collaborateurs: "Bilel",
       date: "2023-03-14",
       onOpen: () => console.log("Opening Best Team Rapport.xlsx"),
     },
     {
       fileName: "DevOps Tools Subscription",
-      destination1: "Lamia",
-      destination2: "",
+      collaborateurs: "Lamia",
       date: "2023-03-13",
       onOpen: () => console.log("Opening DevOps Tools Subscription"),
     },
     {
       fileName: "Annual Budget.pdf",
-      destination1: "Mohammed",
-      destination2: "",
+      collaborateurs: "Mohammed",
       date: "2023-03-12",
       onOpen: () => console.log("Opening Annual Budget.pdf"),
     },
     {
       fileName: "Project Timeline.docx",
-      destination1: "Bilel",
-      destination2: "",
+      collaborateurs: "Bilel",
       date: "2023-03-11",
       onOpen: () => console.log("Opening Project Timeline.docx"),
     },
   ];
+  const testColumns = [
+    {field: "fileName", headerName: "Nom de Document", width: 300},
+    {field: "collaborateurs", headerName: "Collaborateurs", width: 250},
+    {field: "date", headerName: "Date Limite", width: 150},
+    {field: "action", headerName: "Action", width: 200, renderCell: (params) => (
+      <Button variant="contained" color="success" size="small" onClick={()=>{console.log("Opening")}}>
+        Open
+      </Button>
+    )},]
 
+    const testRows = [
+      {id: 1, fileName: "Team Classification.txt", collaborateurs: "Mohammed, Bilel,Monji", date: "2023-03-15"},
+      {id: 2, fileName: "Best Team Rapport.xlsx", collaborateurs: "Bilel", date: "2023-03-14"},
+      {id: 3, fileName: "DevOps Tools Subscription", collaborateurs: "Lamia", date: "2023-03-13"},
+      {id: 4, fileName: "Annual Budget.pdf", collaborateurs: "Mohammed", date: "2023-03-12"},
+      {id: 5, fileName: "Project Timeline.docx", collaborateurs: "Bilel", date: "2023-03-11"},
+    ]
+  
   return (
-    <Container className="reports-container">
-      <Box className="reports-header">
-        <Typography variant="h4" className="reports-title">
-          Approved Documents
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/reports")}
-        >
-          Back to Overview
-        </Button>
-      </Box>
-
-      <Box className="reports-table-container">
-        <table className="reports-table">
-          <thead>
-            <tr>
-              <th>File Name</th>
-              <th>First Destination</th>
-              <th>Second Destination</th>
-              <th>Approval Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {approvedDocuments.map((doc, index) => (
-              <tr key={index}>
-                <td>{doc.fileName}</td>
-                <td>{doc.destination1}</td>
-                <td>{doc.destination2 || "-"}</td>
-                <td>{doc.date}</td>
-                <td>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    onClick={doc.onOpen}
-                  >
-                    Open
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Box>
-    </Container>
+      <DataTable
+        columns={testColumns}
+        rows={testRows}
+        title="Documents Approuvés"
+        backPath="/reports"
+      />
   );
 };
 
