@@ -29,14 +29,21 @@ const Navbar = () => {
                 sx={{ width: 70, height: 70, mr: 3 }}
               /><div>
               <div className="profileName">{userData.firstName} {userData.familyName.toUpperCase()}</div>
-              <div className="profileRole" style={{fontWeight:"lighter",fontStyle:"italic"}}>{userData.role}</div></div>
+              <div className="profileRole" style={{fontWeight:"lighter",fontStyle:"italic"}}>
+                {Array.isArray(userData.role) 
+                  ? userData.role.map((role, index) => (
+                      <div key={index}>{role}</div>
+                    ))
+                  : userData.role}
+              </div>
             </div>
-            <div className="profileOptions">
-              <div
+          </div>
+          <div className="profileOptions">
+            <div
                 className="profileOption"
                 onClick={() => (window.location.href = "/account-management")}
                 style={{ cursor: "pointer" }}
-              >
+            >
                 <span>My Profile</span>
                 <small>Account settings and more</small>
               </div>

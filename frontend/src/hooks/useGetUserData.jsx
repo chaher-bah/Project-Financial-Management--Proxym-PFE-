@@ -7,6 +7,7 @@ export const useGetUserData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ open: false, message: "" });
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
+  const ROLE_HIERARCHY = ["Admin","PMO","PM","Manager"];
 
   const [userData, setUserData] = useState({
     id: null,
@@ -35,6 +36,10 @@ export const useGetUserData = () => {
         );
         const user = response.data.user;
         console.log("operation fetch:",response.data.message);
+        const rawRoles = Array.isArray(keycloak.realmAccess?.roles)
+        ? keycloak.realmAccess.roles
+        : [];
+      const filteredRoles = rawRoles.filter(r => ROLE_HIERARCHY.includes(r));
         setUserData(prev => ({
           ...prev,
           id: user._id,
@@ -43,7 +48,7 @@ export const useGetUserData = () => {
           email: user.email || userData.email,
           phoneNumber: user.phone || "Not Provided",
           groupe: user.groupe || "Not Assigned",
-          role: Array.isArray(keycloak.realmAccess?.roles) ? keycloak.realmAccess.roles : [],
+          role:filteredRoles|| user.role || "Not Assigned",
         }));
         setAvatarPreview(user.photo || "/myAvatar.png");
         setLoading(false);

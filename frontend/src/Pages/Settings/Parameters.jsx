@@ -28,7 +28,6 @@ const Parameters = () => {
   const [form, setForm] = useState({
     firstName: userData.firstName,
     familyName:userData.familyName,
-    email: userData.email,
     phoneNumber: userData.phoneNumber || '',
   });
   //update the form data when the genral settings are fetched
@@ -36,7 +35,6 @@ const Parameters = () => {
     setForm({
       firstName: userData.firstName,
       familyName:userData.familyName,
-      email: userData.email,
       phoneNumber: userData.phoneNumber,
     });
   }, [userData]);
@@ -109,7 +107,6 @@ const Parameters = () => {
     const hasChanges =
       (form.firstName !== userData.firstName && form.firstName !== "") ||
       (form.familyName !== userData.familyName && form.familyName !== "") ||
-      (form.email !== userData.email && form.email !== "") ||
       (form.phoneNumber !== userData.phoneNumber && form.phoneNumber !== null);
 
     if (!hasChanges) {
@@ -121,7 +118,6 @@ const Parameters = () => {
     const success = await saveUserData({
       firstName: form.firstName,
       familyName:form.familyName,
-      email: form.email,
       phone: form.phoneNumber,
     });
 
