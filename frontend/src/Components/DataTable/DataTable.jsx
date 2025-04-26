@@ -33,6 +33,9 @@ const DataTable = ({ columns, rows,title ,backPath}) => {
                     getRowId={(row) => row.id} // Assuming each row has a unique 'id' field
                     sx={{
                         color: '#333',
+                        '& .MuiDataGrid span': {
+                            color: '#333',
+                        },
                         '& .MuiDataGrid-columnHeader': {
                             backgroundColor: '#dbd8e3',
                             fontFamily: 'System-ui, sans-serif',
@@ -59,6 +62,10 @@ const DataTable = ({ columns, rows,title ,backPath}) => {
                         '& .MuiPopper-root MuiDataGrid-panel': {
                             color: '#333',
                         },
+                        '& .MuiDataGrid-columnHeaderTitleContainer': {
+                            justifyContent: 'center',
+                        },
+                        
                     }}
                 />
             </Box>

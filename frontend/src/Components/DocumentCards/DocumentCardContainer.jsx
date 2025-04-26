@@ -6,42 +6,15 @@ import { useDocs } from "../../hooks/useDocs";
 import { useGetUserData } from "../../hooks/useGetUserData";
 
 const DocumentCardContainer = ({refreshTag}) => {
-  const { getMyFiles } = useDocs();
+  const { fetchDocuments,sentDocuments,recievedDocuments } = useDocs();
   const { userData } = useGetUserData();
 
-  const [sentDocuments, setSentDocuments] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!userData.id) return;
+    if (!userData.id) return;
+    fetchDocuments(userData.id);
+  },[userData.id, refreshTag]); 
   
-      // 2. Load the uploads for this user
-      const uploadsData = await getMyFiles(userData.id);
-      console.log("uploadsData:", uploadsData);
-      const uploadsCount = uploadsData.count ;
-      if (uploadsData?.uploads) {
-        const documents = uploadsData.uploads.flatMap(upload => {
-          return upload.files.map(file => {
-            const recipientNames = upload.recipients.map(
-              r => `${r.firstName} ${r.familyName.toUpperCase()} ,`
-            );
-  
-            return {
-              fileName: file.originalName,
-              recipients: recipientNames,
-              creationDate: new Date(upload.createdAt).toLocaleDateString(),
-              onOpen: () => console.log(`Opening ${file.originalName}`)
-            };
-          });
-        });
-  
-        setSentDocuments(documents);
-      }
-    };
-  
-    fetchData();
-  }, [userData.id, refreshTag]); 
-
 
   // Hardcoded data for other categories (unchanged for now)
   const approvedDocuments = [
@@ -71,10 +44,10 @@ const DocumentCardContainer = ({refreshTag}) => {
         <Grid item xs={12} md={6}>
           <DocumentCard
             title="Documents a réviser"
-            documents={approvedDocuments}
+            documents={recievedDocuments}
             cardColor="#97371d"
-            className="revised"
-            expandRoute="/reports/revised"
+            className="to-review"
+            expandRoute="/reports/to-review"
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -86,7 +59,7 @@ const DocumentCardContainer = ({refreshTag}) => {
             expandRoute="/reports/sent"
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <DocumentCard
             title="Documents en attente"
             documents={approvedDocuments}
@@ -113,6 +86,7 @@ const DocumentCardContainer = ({refreshTag}) => {
             expandRoute="/reports/approved"
           />
         </Grid>
+        
         <Grid item xs={12} md={6}>
           <DocumentCard
             title="Document rejetés"
@@ -121,7 +95,7 @@ const DocumentCardContainer = ({refreshTag}) => {
             className="rejected"
             expandRoute="/reports/rejected"
           />
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

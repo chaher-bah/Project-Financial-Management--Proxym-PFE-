@@ -9,7 +9,7 @@ const DataField = ({ label, value }) => (
     {Array.isArray(value) ? (
       value.map((role, idx) => (
         <Typography key={idx} variant="body1" sx={{ mt: 2,mb: 2 }}>
-          {role.toUpperCase()}
+          - {role.toUpperCase()}
         </Typography>
       ))
     ) : (

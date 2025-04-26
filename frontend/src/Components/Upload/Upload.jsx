@@ -196,15 +196,17 @@ const Upload = () => {
                 displayEmpty
                 MenuProps={MenuProps}
               >
-                {users.map((user) => (
-                  <MenuItem
-                    key={user._id}
-                    value={user._id}
-                    style={getStyles(user._id, selectedCollaborators, theme)}
-                  >
-                    {user.firstName} {user.familyName}
-                  </MenuItem>
-                ))}
+                {users
+                  .filter(user => user._id !== UPLOADERID)
+                  .map((user) => (
+                    <MenuItem
+                      key={user._id}
+                      value={user._id}
+                      style={getStyles(user._id, selectedCollaborators, theme)}
+                    >
+                      {user.firstName} {user.familyName}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </Box>
@@ -233,7 +235,6 @@ const Upload = () => {
               fullWidth
               value={comments}
               onChange={(e) => setComments(e.target.value)}
-
             />
           </Box>
 

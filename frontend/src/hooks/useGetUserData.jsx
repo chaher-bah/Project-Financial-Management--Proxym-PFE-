@@ -7,7 +7,7 @@ export const useGetUserData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ open: false, message: "" });
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
-  const ROLE_HIERARCHY = ["Admin","PMO","PM","Manager"];
+  const ROLE_HIERARCHY = ["Admin","Pmo","Pm","Manager"];
 
   const [userData, setUserData] = useState({
     id: null,
@@ -40,28 +40,30 @@ export const useGetUserData = () => {
         ? keycloak.realmAccess.roles
         : [];
       const filteredRoles = rawRoles.filter(r => ROLE_HIERARCHY.includes(r));
-        setUserData(prev => ({
-          ...prev,
-          id: user._id,
-          familyName: user.familyName || userData.familyName,
-          firstName: user.firstName || userData.firstName,
-          email: user.email || userData.email,
-          phoneNumber: user.phone || "Not Provided",
-          groupe: user.groupe || "Not Assigned",
-          role:filteredRoles|| user.role || "Not Assigned",
-        }));
+      const completeUserData = {
+        id: user._id,
+        familyName: user.familyName || userData.familyName,
+        firstName: user.firstName || userData.firstName,
+        email: user.email || userData.email,
+        phoneNumber: user.phone || userData.phoneNumber,
+        groupe: user.groupe || "Not Assigned",
+        role: filteredRoles.length ? filteredRoles : ["Not Assigned"],
+        photo: user.photo || "/myAvatar.png"
+      };
+        setUserData(completeUserData);
         setAvatarPreview(user.photo || "/myAvatar.png");
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError({
           open: true,
           message: "Failed to load user data. Please try again later.",
         });
+      }finally {
+        setLoading(false);
       }
     };
     fetchUserData();
-  }, [keycloak.token]);
+  }, [initialized, keycloak.authenticated,keycloak.token]);
 
   //update user data
   const saveUserData = async (updatedData) => {

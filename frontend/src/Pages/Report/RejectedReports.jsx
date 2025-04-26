@@ -50,7 +50,7 @@ const RejectedReports = () => {
     <Container className="reports-container">
       <Box className="reports-header">
         <Typography variant="h4" className="reports-title">
-          Documents To Be Revised
+          Documents 
         </Typography>
         <Button
           variant="contained"

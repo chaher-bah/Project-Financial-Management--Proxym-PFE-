@@ -8,7 +8,8 @@ export const useDocs = () => {
     const { keycloak } = useKeycloak();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState({ open: false, message: "" });
-    
+    const [sentDocuments,setSentDocuments]=useState({data:[],count:0});
+    const [recievedDocuments,setReceivedDocuments]=useState({data:[],count:0});
 
 
 
@@ -51,7 +52,7 @@ export const useDocs = () => {
         setLoading(true);
         try{
             const response = await axios.get(
-                `http://localhost:3000/api/upload/getAll/${uploaderId}`,
+                `http://localhost:3000/api/upload/getSent/${uploaderId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${keycloak.token}`,
@@ -92,12 +93,144 @@ export const useDocs = () => {
             });
         }
     };
+    //second approach
+    //fetch the document 
+    
+    const fetchDocuments = async (userId) => {
+        setLoading(true);
+        try{
+            //fetch sent Docs
+            const sentResponse = await axios.get(
+                `http://localhost:3000/api/upload/getSent/${userId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            if (sentResponse.data.uploads) {
+                const sentDocuments = sentResponse.data.uploads.flatMap(upload => {
+                    return upload.files.map(file => {
+                        const recipientNames = upload.recipients.map(
+                            r => `${r.firstName} ${r.familyName.toUpperCase()} ,`
+                        );
+                        return {
+                            id: upload._id,
+                            fileName: file.originalName,
+                            recipients: recipientNames,
+                            creationDate: new Date(upload.createdAt).toLocaleDateString(),
+                            onOpen: () => console.log(`Opening ${file.originalName}`)
+                        };
+                    });
+                });
+                setSentDocuments({data:sentDocuments,count:sentResponse.data.count});
+            }
+            //fetch received Docs
+            const receivedResponse = await axios.get(
+                `http://localhost:3000/api/upload/getRecieved/${userId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+     
+            if (receivedResponse.data.uploads) {
+                const receivedDocuments = receivedResponse.data.uploads.flatMap(upload => {
+                    return upload.files.map(file => {
+
+                        const senderName = upload.uploader
+                            ? `${upload.uploader.firstName} ${upload.uploader.familyName.toUpperCase()}`
+                            : "Unknown Sender";
+                        return {
+                            id: upload._id,
+                            fileName: file.originalName,
+                            sender: senderName,
+                            dueDate: new Date(upload.dueDate).toLocaleDateString(),
+                            recipients: upload.recipients.map(
+                                r => `${r.firstName} ${r.familyName.toUpperCase()} `
+                            ),
+                            onOpen: () => console.log(`Opening ${file.originalName}`)
+                        };
+                    });
+                });
+                setReceivedDocuments({data:receivedDocuments,count:receivedResponse.data.count});
+            }
+            setLoading(false);  
+        }catch(error){
+            console.error("Error fetching documents:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to fetch documents. Please try again.",
+            });
+        }
+    }
+
+    const changeUploadStatus = async (uploadId, status) => {
+        setLoading(true);
+        try {
+            const response = await axios.patch(
+                `http://localhost:3000/api/upload/${status}/${uploadId}`,{},
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            setLoading(false);
+            return response.data;
+        } catch (error) {
+            console.error("Error changing upload status:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to change upload status. Please try again.",
+            });
+        }
+    }
+
+    const downloadFile = async (uploadId,originalName) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(
+                `http://localhost:3000/api/upload/download/${uploadId}/${originalName}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                    responseType: "blob",
+                }
+            );
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", originalName);
+            document.body.appendChild(link);
+            link.click();
+            setLoading(false);
+        } catch (error) {
+            console.error("Error downloading file:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to download file. Please try again.",
+            });
+        }
+    }
+
 
 
     return{
         loading,
         error,
         uploadFiles,
+        sentDocuments,
+        recievedDocuments,
+        fetchDocuments,
         getMyFiles,
+        getFilesSentToMe,
+        changeUploadStatus,
+        downloadFile,
     }
 }

@@ -26,13 +26,12 @@ const DocumentCard = ({
     navigate(expandRoute);
   };
   const scrollStyles =
-    documents.length > 5
+    documents.count > 5
       ? {
           maxHeight:  "250px",
           overflowY: "auto",
         }
       : {};
-
   return (
     <Card
       className={`document-card ${className || ""}`}
@@ -47,7 +46,7 @@ const DocumentCard = ({
         action={
           <Box className="card-header-actions">
             <Badge
-              badgeContent={documents.length}
+              badgeContent={documents.count}
               color="secondary"
               className="document-count"
             >
@@ -65,7 +64,7 @@ const DocumentCard = ({
         className="document-card-header"
       />
       <CardContent className="document-card-content" sx={scrollStyles}>
-        {documents.map((doc, index) => (
+        {documents.data.map((doc, index) => (
           <Grid
             container
             key={index}
@@ -76,12 +75,12 @@ const DocumentCard = ({
               <Typography variant="body1">{doc.fileName}</Typography>
             </Grid>
             <Grid item xs={4} className="document-destination">
-              <Typography variant="body2">{doc.recipients}</Typography>
+              <Typography variant="body2">{doc.recipients||doc.sender}</Typography>
             </Grid>
-            {doc.creationDate && ( 
+            
             <Grid item xs={1} className="document-action">
-                <Typography variant="body2">{doc.creationDate}</Typography>
-            </Grid>)}
+                <Typography variant="body2">{doc.creationDate||doc.dueDate}</Typography>
+            </Grid>
           </Grid>
         ))}
       </CardContent>
