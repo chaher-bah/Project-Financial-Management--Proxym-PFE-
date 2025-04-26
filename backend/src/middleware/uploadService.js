@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
         const date = new Date()
         const formattedDate = date.toISOString().substring(0, 13).replace('T', 'H')
         
-        callback(null, userName + '-' + ' (' + formattedDate + ')'+file.originalname)
+        callback(null, userName + '-' + '(' + formattedDate + ')'+'-'+file.originalname)
     }
 })
 const upload = multer({ storage: storage })

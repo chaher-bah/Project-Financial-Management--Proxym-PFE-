@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const statusEnum = ['Envoyee', 'AReviser', 'EnAttente', 'Consultee', 'Approuvee', 'Refuse'];
 
 const fileSubSchema = new mongoose.Schema({
   originalName: { type: String, required: true },
@@ -26,6 +27,11 @@ const uploadSchema = new mongoose.Schema({
   files: {
     type: [fileSubSchema],
     validate: files => files.length > 0,
+  },
+  status: {
+    type: String,
+    enum: statusEnum,
+    default: "Envoyee",
   },
   comnts: {
     type: String,
