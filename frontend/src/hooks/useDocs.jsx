@@ -190,6 +190,31 @@ export const useDocs = () => {
         }
     }
 
+    const changeFileStatus = async (uploadId, fileName, newStatus) => {
+        setLoading(true);
+        try {
+            const response = await axios.patch(
+                `http://localhost:3000/api/upload/file/${uploadId}/${fileName}/${newStatus}`,{},
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            setLoading(false);
+            return response.data;
+        } catch (error) {
+            console.error("Error changing file status:", error);
+            setLoading(false);
+            setError({
+                open: true,
+                message: "Failed to change file status. Please try again.",
+            });
+        }
+    }
+
+
+
     const downloadFile = async (uploadId,originalName) => {
         setLoading(true);
         try {
@@ -220,6 +245,82 @@ export const useDocs = () => {
     }
 
 
+    //fethc document and group them 
+    // In useDocs.js
+const fetchDocuments2 = async (userId) => {
+  setLoading(true);
+  try {
+    // Fetch sent documents
+    const sentResponse = await axios.get(
+      `http://localhost:3000/api/upload/getSent/${userId}`,
+      { headers: { Authorization: `Bearer ${keycloak.token}` } }
+    );
+
+    const sentUploads = sentResponse.data.uploads.map((upload) => ({
+      ...upload,      
+      uploadType: "Envoyés",
+      color: generateUploadColor(upload._id),
+      code: generateUploadCode(upload.createdAt),
+    }));
+    setSentDocuments({
+      data: groupFilesByUpload(sentUploads),
+      count: sentResponse.data.count,
+    });
+    // Fetch received documents
+    const receivedResponse = await axios.get(
+      `http://localhost:3000/api/upload/getRecieved/${userId}`,
+      { headers: { Authorization: `Bearer ${keycloak.token}` } }
+    );
+    const receivedUploads = receivedResponse.data.uploads.map((upload) => ({
+      ...upload,
+      uploadType: "received",
+      color: generateUploadColor(upload._id),
+      code: generateUploadCode(upload.createdAt),
+      
+    }));
+    setReceivedDocuments({
+      data: groupFilesByUpload(receivedUploads),
+      count: receivedResponse.data.count,
+    });
+
+    setLoading(false);
+  } catch (error) {
+    // Error handling remains same
+  }
+};
+  
+  // Helper functions
+  const generateUploadColor = (id) => {
+    const hash = id.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+    return `hsl(${hash % 360}, 70%, 80%)`;
+  };
+  
+  const generateUploadCode = (createdAt) => {
+    const date = new Date(createdAt);
+    return `UP-${date.getFullYear().toString().slice(-2)}${(date.getMonth() + 1)
+      .toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${Math
+      .floor(Math.random() * 900 + 100)}`;
+  };
+  
+  const groupFilesByUpload = (uploads) => {
+    return uploads.map(upload => ({
+      id: upload._id,
+      code: upload.code,
+      color: upload.color,
+      date: new Date(upload.createdAt).toLocaleDateString(),
+      dueDate: upload.dueDate ? new Date(upload.dueDate).toLocaleDateString() : null,
+      sender: upload.uploader ? upload.uploader:'',
+      recipients: upload.recipients.map(r => `${r.firstName} ${r.familyName.toUpperCase()}`),
+      status: upload.status,
+      files: upload.files.map(file => ({
+        name: file.originalName,
+        status: file.fileStatus,
+        uploadDate: new Date(upload.createdAt).toLocaleDateString(),
+
+      }))
+    }));
+  };
+
 
     return{
         loading,
@@ -228,9 +329,11 @@ export const useDocs = () => {
         sentDocuments,
         recievedDocuments,
         fetchDocuments,
+        fetchDocuments2,
         getMyFiles,
         getFilesSentToMe,
         changeUploadStatus,
+        changeFileStatus,
         downloadFile,
     }
 }

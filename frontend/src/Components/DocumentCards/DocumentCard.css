@@ -43,7 +43,8 @@
 }
 
 .document-row {
-  padding: 12px 24px;
+  display: inline-block;
+  padding: 8px 12px;
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s;
 }

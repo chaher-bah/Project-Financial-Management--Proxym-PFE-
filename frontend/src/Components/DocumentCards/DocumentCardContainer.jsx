@@ -4,17 +4,28 @@ import DocumentCard from "./DocumentCard";
 import "./DocumentCardContainer.css";
 import { useDocs } from "../../hooks/useDocs";
 import { useGetUserData } from "../../hooks/useGetUserData";
-
+import { useDocsV2 } from "../../hooks/useDocsV2";
+import DocCard from "./DocCard";
 const DocumentCardContainer = ({refreshTag}) => {
-  const { fetchDocuments,sentDocuments,recievedDocuments } = useDocs();
+  const { fetchDocuments,sentDocuments,recievedDocuments,fetchDocuments2 } = useDocs();
   const { userData } = useGetUserData();
+  const {sentDocumentss,fetchAllStatusDocuments,aReviserDocuments,approuveeDocuments,enAttenteDocuments
+,consulteeDocuments,refuseDocuments,loading} = useDocsV2();
 
 
   useEffect(() => {
     if (!userData.id) return;
-    fetchDocuments(userData.id);
+    // fetchDocuments(userData.id);
+    fetchDocuments2(userData.id);
+    // fetchAllStatusDocuments(userData.id);
   },[userData.id, refreshTag]); 
-  
+  // console.log("sentDocumentss",sentDocumentss);
+  // console.log("recievedDocuments",recievedDocuments);
+  // console.log("aReviserDocuments",aReviserDocuments);
+  // console.log("enAttenteDocuments",enAttenteDocuments);
+  // console.log("consulteeDocuments",consulteeDocuments);
+  // console.log("approuveeDocuments",approuveeDocuments);
+  // console.log("refuseDocuments",refuseDocuments);
 
   // Hardcoded data for other categories (unchanged for now)
   const approvedDocuments = [
@@ -42,7 +53,7 @@ const DocumentCardContainer = ({refreshTag}) => {
     <Container className="document-container">
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <DocumentCard
+          <DocCard
             title="Documents a réviser"
             documents={recievedDocuments}
             cardColor="#97371d"
@@ -51,7 +62,7 @@ const DocumentCardContainer = ({refreshTag}) => {
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <DocumentCard
+          <DocCard
             title="Documents envoyés"
             documents={sentDocuments}
             cardColor="#302d97"
@@ -59,15 +70,17 @@ const DocumentCardContainer = ({refreshTag}) => {
             expandRoute="/reports/sent"
           />
         </Grid>
-        {/* <Grid item xs={12} md={6}>
+        
+        {/*
+         <Grid item xs={12} md={6}>
           <DocumentCard
             title="Documents en attente"
-            documents={approvedDocuments}
+            documents={enAttenteDocuments}
             cardColor="#d7a42a"
             className="pending"
             expandRoute="/reports/pending"
           />
-        </Grid>
+        </Grid>{/* 
         <Grid item xs={12} md={6}>
           <DocumentCard
             title="Documents consultés"
