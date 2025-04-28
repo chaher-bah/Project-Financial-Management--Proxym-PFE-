@@ -3,7 +3,6 @@ const User = require("../models/user");
 const mongoose = require("mongoose");
 const validStatuses = [
   "Envoyee",
-  "AReviser",
   "EnAttente",
   "Consultee",
   "Approuvee",
@@ -250,11 +249,196 @@ exports.updateUploadStatus = async (req, res) => {
       .json({ message: "Error updating upload status", error: error.message });
   }
 };
+//patch file status
+exports.updateFileStatus = async (req, res) => {
+  try {
+    const { uploadId, fileName, newStatus } = req.params;
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(uploadId)) {
+      return res.status(400).json({ message: "Invalid upload ID format" });
+    }
+    // Check if upload exists
+    const upload = await Upload.findById(uploadId).exec();
+    if (!upload) {
+      return res.status(404).json({ message: "Upload not found" });
+    }
+    if (!validStatuses.includes(newStatus)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    // Find the file in the upload
+    const file = upload.files.find((f) => f.originalName === fileName);
+    if (!file) {
+      return res.status(404).json({ message: "File not found in upload" });
+    }
+    // Update the status of the file
+    file.fileStatus = newStatus;
+    await upload.save();
+
+    res
+      .status(200)
+      .json({ message: "File status updated successfully", upload });
+  } catch (error) {
+    console.error("Error updating file status:", error);
+    res
+      .status(500)
+      .json({ message: "Error updating file status", error: error.message });
+  }
+};
+
+//upadae the upload status and the files status
+exports.updateStatus = async (req, res) => {
+  try {
+    const { uploadId, newStatus } = req.params;
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(uploadId)) {
+      return res.status(400).json({ message: "Invalid upload ID format" });
+    }
+    // Check if upload exists
+    const upload = await Upload.findById(uploadId).exec();
+    if (!upload) {
+      return res.status(404).json({ message: "Upload not found" });
+    }
+    if (!validStatuses.includes(newStatus)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    // Update the status of the upload
+    upload.status = newStatus;
+    // Update the status of all files in the upload
+    upload.files.forEach((file) => {
+      file.fileStatus = newStatus;
+    });
+    if (newStatus === "Envoyee") {
+      upload.files.forEach((file) => {
+        file.downloadedBy = [];
+      });
+    }
+
+    await upload.save();
+    res
+      .status(200)
+      .json({ message: "Upload and file statuses updated successfully", upload });
+  } catch (error) {
+    console.error("Error updating upload and file statuses:", error);
+    res
+    .status(500).json({
+      message: "Error updating upload and file statuses",
+      error: error.message,
+    });
+  }
+};
+
+//get uploads by user ID
+exports.getUploadsByUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const uid =new mongoose.Types.ObjectId(userId);
+
+    const pipeline = [
+      // only docs where this user is uploader OR a recipient
+      { $match: { $or: [ { uploader: uid }, { recipients: uid } ] } },
+
+      // add isUploader flag
+      {
+        $lookup: {
+          from:      "users",
+          localField: "uploader",
+          foreignField: "_id",
+          as:        "uploaderDoc"
+        }
+      },
+      { $unwind: "$uploaderDoc" }, 
+      {
+        $lookup: {
+          from:      "users",
+          localField: "recipients",
+          foreignField: "_id",
+          as:        "recipientDocs"
+        }
+      },        
+      { $addFields: { isUploader: { $eq: ["$uploader", uid] } } },
+
+      // project only the fields you care about
+      { $project: {
+        uploader: {
+          _id :"$uploaderDoc._id",
+          firstName:   "$uploaderDoc.firstName",
+          familyName:  "$uploaderDoc.familyName",
+          email:       "$uploaderDoc.email"
+        },
+        recipients: {
+          $map: {
+            input: "$recipientDocs",
+            as:    "r",
+            in: {
+              firstName:  "$$r.firstName",
+              familyName: "$$r.familyName",
+              email:      "$$r.email"
+            }
+          }
+        },
+          dueDate:    1,
+          status:     1,
+          comnts:     1,
+          createdAt:  1,
+          updatedAt:  1,
+          files:      1,
+          isUploader: 1
+      }},
+
+      // group into buckets by status
+      { $group: {
+          _id:     "$status",
+          uploads: { $push: "$$ROOT" }
+      }},
+
+      // rename _id → status
+      { $project: {
+          _id:    0,
+          status: "$_id",
+          uploads: 1
+      }},
+
+      // sort the buckets in your enum order
+      { $addFields: {
+          sortOrder: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$status","Envoyee"] },  then: 0 },
+                { case: { $eq: ["$status","AReviser"] },  then: 1 },
+                { case: { $eq: ["$status","EnAttente"] }, then: 2 },
+                { case: { $eq: ["$status","Consultee"] }, then: 3 },
+                { case: { $eq: ["$status","Approuvee"] }, then: 4 },
+                { case: { $eq: ["$status","Refuse"] },    then: 5 }
+              ],
+              default: 99
+            }
+          }
+      }},
+      { $sort: { sortOrder: 1 } },
+      { $project: { sortOrder: 0 }}
+    ];
+
+    const grouped = await Upload.aggregate(pipeline).exec();
+    res.json(grouped);
+  }
+  catch (err) {
+    next(err);
+  }
+};
+
+
+
+
+
 
 //download file
 exports.downloadFile = async (req, res) => {
   try {
-    const { uploadId,originalName } = req.params;
+    const { uploadId, originalName, userId } = req.params;
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(uploadId)) {
       return res.status(400).json({ message: "Invalid upload ID format" });
@@ -269,10 +453,27 @@ exports.downloadFile = async (req, res) => {
     if (!file) {
       return res.status(404).json({ message: "File not found in upload" });
     }
+
     // Set headers for file download
-    res.setHeader("Content-Disposition", `attachment; filename=${file.originalName}`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${file.originalName}`
+    );
     res.setHeader("Content-Type", file.contentType);
     res.setHeader("Content-Length", file.size);
+    const user= await User.findById(userId).exec();
+    file.downloadedBy.push({user:{id:user._id,firstName:user.firstName,familyName:user.familyName},
+      downloadDate:new Date()});
+    // Check if all recipients have downloaded this file
+    const allRecipients = upload.recipients.map(recipient => recipient.toString());
+    const downloadedUserIds = file.downloadedBy.map(d => d.user.id.toString());
+    const allDownloaded = allRecipients.every(recipientId => downloadedUserIds.includes(recipientId));
+    if (allDownloaded) {
+      file.fileStatus = 'EnAttente';
+    }else {
+      file.fileStatus = 'Envoyee';
+    }
+    await upload.save();
     // Send the file
     res.download(file.path, file.originalName, (err) => {
       if (err) {
@@ -282,7 +483,8 @@ exports.downloadFile = async (req, res) => {
     });
   } catch (error) {
     console.error("Error downloading file:", error);
-    res.status(500).json({ message: "Error downloading file", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error downloading file", error: error.message });
   }
-    
 };

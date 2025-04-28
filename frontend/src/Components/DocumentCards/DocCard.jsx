@@ -33,7 +33,6 @@ const DocCard = ({ title, documents, cardColor, expandRoute, className }) => {
   const handleExpand = () => {
     navigate(expandRoute);
   };
-  console.log("documents", documents);
   return (
     <Card
       className={`document-card ${className || ""}`}
@@ -94,11 +93,11 @@ const DocCard = ({ title, documents, cardColor, expandRoute, className }) => {
                   <Grid item xs={4} ><Typography variant="subtitle2">{upload.code}</Typography></Grid>
                   <Grid item xs={3} ><Chip label={upload.status} size="small" color={upload.status === "Approuvee" ? "success" : upload.status === "EnAttente" ? "warning" : upload.status === "Refuse" ? "error" : "default"} /></Grid>
                   <Grid item xs={7} ><Typography variant="body2">
-                    {upload.sender._id === userData.id
+                    {upload.recipients && userData.id === upload.sender._id
                       ? `A: ${upload.recipients.join(", ")}`
                       : `De: ${
                           upload.sender.firstName
-                        } ${upload.sender.familyName.toUpperCase()}`}
+                        } ${upload.sender.familyName}`}
                   </Typography></Grid>
                   <Grid item xs={2} >
                     {upload.dueDate ? (
