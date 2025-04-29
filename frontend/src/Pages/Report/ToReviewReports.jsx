@@ -8,9 +8,10 @@ import Loader from '../../Components/Loader/Loader'
 const ToReviewReports = () => {
     const {keycloak} = useKeycloak()
     const { userData ,loading:userLoading} = useGetUserData();
-    const {recievedDocuments,fetchDocuments2,loading:docsLoading,downloadFile,changeFileStatus,fetchDocuments3,otherStatusDocs} = useDocs()
+    const {loading:docsLoading,downloadFile,changeFileStatus,fetchDocuments3,otherStatusDocs} = useDocs()
 
     const processUploads = (uploads) => {
+      console.log("uploads",uploads)
       return uploads.map(upload => ({
         id: upload.id,
         uploadCode: upload.code,
@@ -18,6 +19,7 @@ const ToReviewReports = () => {
         to: upload.recipients.join(", "),
         date: new Date(upload.dueDate).toLocaleDateString(),
         uploadColor: upload.color,
+        comnts: upload.comments,
         files: upload.files.map(file => ({
           id: file.name,
           fileName: file.name,
@@ -36,13 +38,14 @@ const ToReviewReports = () => {
       }, [userData?.id, keycloak.authenticated]);
       const toReviewDocs   = otherStatusDocs["AReviser"]  || { count: 0, data: [] };console.log("toReviewDocs from page",toReviewDocs);
     const Columns=[
-        {field: "uploadCode", headerName: "Code", width: 110}, 
-        {field: "fileName", headerName: "Nom de Document", width: 220},
+        {field: "uploadCode", headerName: "Code", width: 100}, 
+        {field:"comnts", headerName: "Commentaires", width: 150},
+        {field: "fileName", headerName: "Nom de Document", width: 200},
         {field: "from", headerName: "Envoyer Par", width: 130},
         {field:"uploadDate", headerName: "Date d'Envoi", width: 110},
         {field: "to", headerName: "Envoyer A", width: 250},
         {field:"downloadedBy", headerName: "Télécharger Par", width: 150},
-        {field: "date", headerName: "Date Limite", width: 110},
+        {field: "date", headerName: "Date Limite", width: 90},
         {field: "action", headerName: "Télécharger", width: 150, renderCell: (params) => {if (!params.row.fileName) return null;
           return (
             <Button
@@ -53,7 +56,7 @@ const ToReviewReports = () => {
                 changeFileStatus(params.row.parentId, params.row.fileName, "EnAttente")
                   .then(() => {
                     downloadFile(params.row.parentId, params.row.fileName,userData.id);
-                    fetchDocuments2(userData.id);
+                    fetchDocuments3(userData.id);
                   })
                   .catch(console.error);
               }}
@@ -77,8 +80,9 @@ const ToReviewReports = () => {
         rows={rowData}
         title="Documents à Réviser"
         backPath="/reports"
+        expand={true}
       />
   )
 }
 
-export default ToReviewReports
+export default ToReviewReports 
