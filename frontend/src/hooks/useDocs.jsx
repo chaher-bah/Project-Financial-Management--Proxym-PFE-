@@ -260,6 +260,29 @@ export const useDocs = () => {
       });
     }
   };
+  //delete file 
+  const deleteFile = async (uploadId, originalName) => {
+    setLoading(true);
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/api/upload/${uploadId}/files/${originalName}/delete`,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      setLoading(false);
+      setError({
+        open: true,
+        message: "Failed to delete file. Please try again.",
+      });
+    }
+  };
 
   //fethc document and group them
   // In useDocs.js
@@ -484,7 +507,9 @@ const fetchDocuments3 = async (userId) => {
         acc[e.uploadId].files.push({
           name:       e.file.originalName,
           status:     e.file.fileStatus,
-          uploadDate: new Date(e.createdAt).toLocaleDateString()
+          uploadDate: new Date(e.createdAt).toLocaleDateString(),
+          downloadedBy: e.file.downloadedBy.length > 0 ? e.file.downloadedBy : [],
+
         });
         return acc;
       }, {});
@@ -499,7 +524,7 @@ const fetchDocuments3 = async (userId) => {
         status: up.originalStatus,
         comments: up.comnts,
         recipients: up.recipients.map(r => `${r.firstName} ${r.familyName.toUpperCase()}`),
-        files: up.files,            // now contains all files for that upload
+        files: up.files,            
         sender: {
           _id:   up.uploader._id,
           name:  `${up.uploader.firstName} ${up.uploader.familyName.toUpperCase()}`,
@@ -567,15 +592,16 @@ const fetchDocuments3 = async (userId) => {
             createdAt: e.createdAt,
             dueDate: e.dueDate,
             comnts: e.comnts,
+            color:generateUploadColor(e.uploadId),
             status: effStatus,
             files: []
           };
-        }        console.log("effStatus",acc[effStatus][e.uploadId])
+        } 
 
         // add this file to that upload
         acc[effStatus][e.uploadId].files.push({
           name: e.file.originalName,
-          status: hasDownloaded ? "Téléchargé" : effStatus,
+          status: ( ((effStatus ==='EnAttente'||effStatus ==='AReviser') && hasDownloaded))? "Téléchargé" : effStatus,
           uploadDate: new Date(e.createdAt).toLocaleDateString(),
           downloadedBy: hasDownloadedList.length>0? e.file.downloadedBy:[] ,
         });
@@ -635,5 +661,6 @@ const fetchDocuments3 = async (userId) => {
     changeUploadStatus,
     changeFileStatus,
     downloadFile,
+    deleteFile,
   };
 };

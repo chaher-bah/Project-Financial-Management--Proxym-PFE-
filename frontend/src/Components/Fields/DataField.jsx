@@ -13,7 +13,7 @@ const DataField = ({ label, value }) => (
         </Typography>
       ))
     ) : (
-      <Typography variant="body1" sx={{ mt: 1 }}>
+      <Typography variant="body1" sx={{ m: 1 ,mb: 2 }}>
         {value}
       </Typography>
     )}

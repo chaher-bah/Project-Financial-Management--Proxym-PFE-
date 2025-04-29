@@ -4,13 +4,15 @@ import MainLayout from "../Pages/MainLayout";
 import Page404 from "../Pages/Page404/Page404";
 import Dash from "../Pages/Dashboard/Dash";
 import Loader from "../Components/Loader/Loader";
+import PendingReports from "../Pages/Report/PendingReports";
 // Lazy-loaded components
 const Reports = lazy(() => import("../Pages/Report/Reports"));
 const ApprovedReports = lazy(() => import("../Pages/Report/ApprovedReports"));
 const RejectedReports = lazy(() =>import("../Pages/Report/RejectedReports"));
 const ToReviewReports = lazy(() => import("../Pages/Report/ToReviewReports"));
 const Parameters = lazy(() => import("../Pages/Settings/Parameters"));
-
+const RoleGroupConfig = lazy(() => import("../Pages/Role_GroupConfig/RoleGroupConfig"));
+const SentDocument = lazy(() => import("../Pages/Report/SentDocument"));
 const Routes = createBrowserRouter([
   {
     path: "/",
@@ -48,7 +50,7 @@ const Routes = createBrowserRouter([
         path: "reports/sent",
         element: (
           <Suspense fallback={<Loader />}>
-            <Loader />
+            <SentDocument />
           </Suspense>
         ),
       },
@@ -56,7 +58,7 @@ const Routes = createBrowserRouter([
         path: "reports/pending",
         element: (
           <Suspense fallback={<Loader />}>
-            <Loader />
+            <PendingReports />
           </Suspense>
         ),
       },
@@ -77,7 +79,12 @@ const Routes = createBrowserRouter([
         ),
       },
       { path: "team", element: <div>Teams Page</div> },
-      { path: "role-assignment", element: <Loader /> },
+      { path: "role-assignment",
+         element: (
+          <Suspense fallback={<Loader />}>
+            <RoleGroupConfig />
+          </Suspense>
+        ) },
       {
         path: "account-management",
         element: (

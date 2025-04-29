@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Container } from "@mui/material";
-import DocumentCard from "./DocumentCard";
 import "./DocumentCardContainer.css";
 import { useDocs } from "../../hooks/useDocs";
 import { useGetUserData } from "../../hooks/useGetUserData";
-import { useDocsV2 } from "../../hooks/useDocsV2";
 import DocCard from "./DocCard";
 const DocumentCardContainer = ({refreshTag}) => {
   const { fetchDocuments3,sentDocuments2,otherStatusDocs } = useDocs();
   const { userData } = useGetUserData();
-  const {sentDocumentss,fetchAllStatusDocuments,aReviserDocuments,approuveeDocuments,enAttenteDocuments
-,consulteeDocuments,refuseDocuments,loading} = useDocsV2();
+
 
 
   useEffect(() => {
@@ -19,30 +16,9 @@ const DocumentCardContainer = ({refreshTag}) => {
     fetchDocuments3(userData.id);
   },[userData.id, refreshTag]); 
 
-  const approvedDocuments = [
-    {
-      fileName: "Team Classification.txt",
-      destination1: "Mohammed",
-      destination2: "",
-      onOpen: () => console.log("Opening Team Classification.txt"),
-    },
-    {
-      fileName: "Best Team Rapport.xlsx",
-      destination1: "Bilel",
-      destination2: "",
-      onOpen: () => console.log("Opening Best Team Rapport.xlsx"),
-    },
-    {
-      fileName: "DevOps Tools Subscription",
-      destination1: "Lamia",
-      destination2: "",
-      onOpen: () => console.log("Opening DevOps Tools Subscription"),
-    },
-  ];
   console.log("sentDocuments",sentDocuments2);
   console.log("other things ",otherStatusDocs);
   const toReviewDocs   = otherStatusDocs["AReviser"]  || { count: 0, data: [] };
-  console.log("toReviewDocs",toReviewDocs);
   const pendingDocs    = otherStatusDocs["EnAttente"] || { count: 0, data: [] };console.log("pendingDocs",pendingDocs);
   const consultedDocs  = otherStatusDocs["Consultee"] || { count: 0, data: [] };console.log("consultedDocs",consultedDocs);
   const approvedDocs   = otherStatusDocs["Approuvee"] || { count: 0, data: [] };

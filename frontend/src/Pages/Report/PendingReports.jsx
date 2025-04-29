@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import DataTable from "../../Components/DataTable/DataTable";
 import DataField from "../../Components/Fields/DataField";
+import DateDiffIndicator from "../../Components/DateDiffIndicator/DateDiffIndicator";
+import { processFileUploads } from "../../utils/processColumns";
 const PendingReports = () => {
   const {
     fetchDocuments3,
@@ -86,7 +88,10 @@ const PendingReports = () => {
       modifyFileInput,
       modifyComments
     );
+    setOpen(true)
     setInfo({ type: "success", message: "Fichier modifié avec succès" });
+    setTimeout(() => setOpen(false), 3000);
+    setInfo({ type: "", message: "" });
     setOpenModify(false);
     setTimeout(() => setInfo({ type: "", message: "" }), 3000);
     fetchDocuments3(userData.id);
@@ -106,7 +111,6 @@ const PendingReports = () => {
       headerName: "Operations",
       width: 180,
       renderCell: (params) => {
-        console.log(params);
         const fileRow =
           params.row.files.find((f) => f.id === params.row.id) || params.row;
         const uploadRow = params.row;
@@ -169,39 +173,6 @@ const PendingReports = () => {
     },
   ];
 
-  const processUploads = (uploads) => {
-    // flatten uploads and files for table rows
-    let rows = [];
-    uploads.forEach((upload) => {
-      upload.files.forEach((file) => {
-        rows.push({
-          id: `${upload.id}-${file.name}`,
-          uploadCode: upload.code,
-          fileName: file.name,
-          from:
-            upload.sender.firstName +
-            " " +
-            upload.sender.familyName.toUpperCase(),
-          uploadDate: new Date(file.uploadDate).toLocaleDateString(),
-          to: upload.recipients.join(", "),
-          downloadedBy:
-            Array.isArray(file.downloadedBy) && file.downloadedBy.length > 0
-              ? file.downloadedBy
-                  .map((d) =>
-                    d.user
-                      ? `${d.user.firstName} ${d.user.familyName.toUpperCase()}`
-                      : "Utilisateur"
-                  )
-                  .join(", ")
-              : "Non téléchargé",
-          date: new Date(upload.dueDate).toLocaleDateString(),
-          parentId: upload.id,
-          files: [{ ...file, parentId: upload.id }],
-        });
-      });
-    });
-    return rows;
-  };
 
   useEffect(() => {
     if (userData?.id && keycloak.authenticated) {
@@ -213,7 +184,7 @@ const PendingReports = () => {
   if (docsLoading || userLoading) {
     return <Loader />;
   }
-  const rows = processUploads(pendingDocs.data);
+  const rows = processFileUploads(pendingDocs.data);
 
   return (
     <div style={{ margin: 1, maxWidth: "98%" }}>
@@ -236,6 +207,7 @@ const PendingReports = () => {
         open={openFeedback}
         onClose={handleCloseFeedback}
         fullWidth
+        maxWidth="md"
         PaperProps={{
           style: {
             backgroundColor: "#F5EFFF",
@@ -244,12 +216,26 @@ const PendingReports = () => {
           },
         }}
       >
+        <DialogTitle>Appliquer des modifications </DialogTitle>
+        <DialogContent dividers>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-around",
+              gap: "20px 270px",
+              flexWrap: "wrap",
+              alignContent: "center",
+            }}
+          >
+            <DataField value={selectedFile.fileName} label="Nom de Document" />
+            <DataField value={selectedFile.sender} label="Envoyé Par" />
+            <DataField value={<DateDiffIndicator dueDate={selectedFile.dueDate}/>} label="Date Limite" />
+            <DataField value={selectedFile.recipients} label="Envoyé A" />
+          </div>
+        </DialogContent>
         <DialogTitle>Envoyer un feedback</DialogTitle>
         <DialogContent dividers>
-          <DataField value={selectedFile.fileName} label="Nom de Document" />
-          <DataField value={selectedFile.sender} label="Envoyé Par" />
-          <DataField value={selectedFile.dueDate} label="Date Limite" />
-          <DataField value={selectedFile.recipients} label="Envoyé A" />
           <TextField
             autoFocus
             margin="dense"
@@ -260,6 +246,29 @@ const PendingReports = () => {
             minRows={3}
             value={feedbackText}
             onChange={(e) => setFeedbackText(e.target.value)}
+          />
+        </DialogContent>
+        <DialogTitle>Modifier le fichier</DialogTitle>
+
+        <DialogContent dividers>
+          <Box mt={2}>
+            <Button variant="outlined" component="label">
+              Choisir un nouveau fichier
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+            {modifyFileInput && (
+              <Typography m={1}>{modifyFileInput.name}</Typography>
+            )}
+          </Box>
+          <TextField
+            margin="dense"
+            label="Commentaires"
+            type="text"
+            fullWidth
+            multiline
+            minRows={2}
+            value={modifyComments}
+            onChange={(e) => setModifyComments(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -296,7 +305,7 @@ const PendingReports = () => {
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
             {modifyFileInput && (
-              <Typography mt={1}>{modifyFileInput.name}</Typography>
+              <Typography m={1}>{modifyFileInput.name}</Typography>
             )}
           </Box>
           <TextField
