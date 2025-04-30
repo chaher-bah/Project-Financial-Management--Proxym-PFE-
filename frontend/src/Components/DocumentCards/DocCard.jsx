@@ -125,7 +125,6 @@ const DocCard = ({ title, documents, cardColor, expandRoute, className }) => {
                     size="small"
                     color={file.status === "Approuvee" ? "success" : file.status === "EnAttente" ? "warning" : file.status === "Refuse" ? "error" : "default"}
                   />
-                  <Typography variant="caption">{file.size}</Typography>
                   <Typography variant="caption">Envoyé le: {file.uploadDate}</Typography>
                 </div>
               ))}

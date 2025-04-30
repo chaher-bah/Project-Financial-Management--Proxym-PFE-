@@ -5,6 +5,7 @@ import { useKeycloak } from "@react-keycloak/web";
 import { processUploads } from "../../utils/processColumns";
 import DataTable from "../../Components/DataTable/DataTable";
 import { Button, Box,Alert } from "@mui/material";
+import ConfirmationDialog from "../../Components/DocumentCards/ConfirmationDialog";
 const SentDocument = () => {
   const { keycloak } = useKeycloak();
   const { userData } = useGetUserData();
@@ -18,6 +19,42 @@ const SentDocument = () => {
   const processedUploads = processUploads(sentDocuments2.data);
   const [info, setInfo] = useState({ type: "", message: "" });
   const [open, setOpen] = useState(false);
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const handleOpenConfirmDialog = (file) => {
+      setSelectedFile(file);
+      setConfirmDialogOpen(true);
+    };
+  
+    const handleCloseConfirmDialog = () => {
+      setConfirmDialogOpen(false);
+      setSelectedFile(null);
+    };
+    const handleDeleteFile = () => {
+      if (selectedFile) {
+        deleteFile(selectedFile.parentId, selectedFile.fileName)
+          .then(() => {
+            setInfo({
+              type: "success",
+              message: `Le document ${selectedFile.fileName} a été supprimé avec succès.`,
+            });
+            setOpen(true);
+            setTimeout(() => setOpen(false), 3000);
+            fetchDocuments3(userData?.id); // Refresh the data
+          })
+          .catch((error) => {
+            setInfo({
+              type: "error",
+              message: `Erreur lors de la suppression du document ${selectedFile.fileName}.`,
+            });
+            setOpen(true);
+            setTimeout(() => setOpen(false), 3000);
+          });
+      }
+      handleCloseConfirmDialog();
+    }
+
+
   const Columns = [
     { field: "uploadCode", headerName: "Code", width: 95 },
     { field: "comnts", headerName: "Commentaires", width: 150 },
@@ -76,31 +113,32 @@ const SentDocument = () => {
               variant="contained"
               color="error"
               size="small"
-              onClick={() => {
-                deleteFile(params.row.parentId, params.row.fileName)
-                  .then(() => {
-                    fetchDocuments3(userData.id);
-                    setOpen(true);
-                    setInfo({
-                      type: "success",
-                      message: "Le document a été supprimé avec succès.",
-                    });
-                    setTimeout(() => {
-                      setOpen(false);
-                    }, 3000);
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                    setOpen(true);
-                    setInfo({
-                      type: "error",
-                      message: "Erreur lors de la suppression du document.",
-                    });
-                    setTimeout(() => {
-                      setOpen(false);
-                    }, 3000);
-                  });
-              }}
+              onClick={() => handleOpenConfirmDialog(params.row)}
+              // {() => {
+              //   deleteFile(params.row.parentId, params.row.fileName)
+              //     .then(() => {
+              //       fetchDocuments3(userData.id);
+              //       setOpen(true);
+              //       setInfo({
+              //         type: "success",
+              //         message: "Le document a été supprimé avec succès.",
+              //       });
+              //       setTimeout(() => {
+              //         setOpen(false);
+              //       }, 3000);
+              //     })
+              //     .catch((error) => {
+              //       console.error(error);
+              //       setOpen(true);
+              //       setInfo({
+              //         type: "error",
+              //         message: "Erreur lors de la suppression du document.",
+              //       });
+              //       setTimeout(() => {
+              //         setOpen(false);
+              //       }, 3000);
+              //     });
+              // }}
             >
               Effacer
             </Button>
@@ -123,6 +161,17 @@ const SentDocument = () => {
         backPath="/reports"
         expand={true}
       />
+      <ConfirmationDialog
+        open={confirmDialogOpen}
+        onClose={handleCloseConfirmDialog}
+        onConfirm={handleDeleteFile}
+        title="Confirmation de Suppression"
+        content={`Êtes-vous sûr de vouloir supprimer le document ${selectedFile?.fileName} ?`}
+        confirmButtonColor="error"
+        confirmButtonText="Supprimer" 
+        selectedItem={selectedFile?.fileName} 
+        selectedItemLabel="Document"
+        />
     </div>
   );
 };
