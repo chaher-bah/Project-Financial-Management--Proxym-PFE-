@@ -249,41 +249,7 @@ exports.updateUploadStatus = async (req, res) => {
       .json({ message: "Error updating upload status", error: error.message });
   }
 };
-//patch file status
-exports.updateFileStatus = async (req, res) => {
-  try {
-    const { uploadId, fileName, newStatus } = req.params;
-    // Validate ObjectId format
-    if (!mongoose.Types.ObjectId.isValid(uploadId)) {
-      return res.status(400).json({ message: "Invalid upload ID format" });
-    }
-    // Check if upload exists
-    const upload = await Upload.findById(uploadId).exec();
-    if (!upload) {
-      return res.status(404).json({ message: "Upload not found" });
-    }
-    if (!validStatuses.includes(newStatus)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-    // Find the file in the upload
-    const file = upload.files.find((f) => f.originalName === fileName);
-    if (!file) {
-      return res.status(404).json({ message: "File not found in upload" });
-    }
-    // Update the status of the file
-    file.fileStatus = newStatus;
-    await upload.save();
 
-    res
-      .status(200)
-      .json({ message: "File status updated successfully", upload });
-  } catch (error) {
-    console.error("Error updating file status:", error);
-    res
-      .status(500)
-      .json({ message: "Error updating file status", error: error.message });
-  }
-};
 
 //upadae the upload status and the files status
 exports.updateStatus = async (req, res) => {
@@ -310,6 +276,9 @@ exports.updateStatus = async (req, res) => {
     if (newStatus === "Envoyee") {
       upload.files.forEach((file) => {
         file.downloadedBy = [];
+        file.feedback = [];
+        file.versions = [];
+        
       });
     }
 
@@ -435,56 +404,4 @@ exports.getUploadsByUser = async (req, res, next) => {
 
 
 
-//download file
-exports.downloadFile = async (req, res) => {
-  try {
-    const { uploadId, originalName, userId } = req.params;
-    // Validate ObjectId format
-    if (!mongoose.Types.ObjectId.isValid(uploadId)) {
-      return res.status(400).json({ message: "Invalid upload ID format" });
-    }
-    // Check if upload exists
-    const upload = await Upload.findById(uploadId).exec();
-    if (!upload) {
-      return res.status(404).json({ message: "Upload not found" });
-    }
-    // Find the file in the upload
-    const file = upload.files.find((f) => f.originalName === originalName);
-    if (!file) {
-      return res.status(404).json({ message: "File not found in upload" });
-    }
 
-    // Set headers for file download
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=${file.originalName}`
-    );
-    res.setHeader("Content-Type", file.contentType);
-    res.setHeader("Content-Length", file.size);
-    const user= await User.findById(userId).exec();
-    file.downloadedBy.push({user:{id:user._id,firstName:user.firstName,familyName:user.familyName},
-      downloadDate:new Date()});
-    // Check if all recipients have downloaded this file
-    const allRecipients = upload.recipients.map(recipient => recipient.toString());
-    const downloadedUserIds = file.downloadedBy.map(d => d.user.id.toString());
-    const allDownloaded = allRecipients.every(recipientId => downloadedUserIds.includes(recipientId));
-    if (allDownloaded) {
-      file.fileStatus = 'EnAttente';
-    }else {
-      file.fileStatus = 'Envoyee';
-    }
-    await upload.save();
-    // Send the file
-    res.download(file.path, file.originalName, (err) => {
-      if (err) {
-        console.error("Error downloading file:", err);
-        res.status(500).json({ message: "Error downloading file" });
-      }
-    });
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    res
-      .status(500)
-      .json({ message: "Error downloading file", error: error.message });
-  }
-};

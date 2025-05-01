@@ -644,6 +644,61 @@ const fetchDocuments3 = async (userId) => {
     }
   };
   
+
+  const saveFileFeedback = async (uploadId, fileName, feedbackText,user) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/upload/${uploadId}/files/${fileName}/feedback`,
+        { feedbackText,
+          authorId: user.id,
+        firstName: user.firstName,
+        familyName: user.familyName
+         },
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error saving file feedback:", error);
+      setLoading(false);
+      setError({
+        open: true,
+        message: "Failed to save file feedback. Please try again.",
+      });
+    }
+  };
+  const saveNewFileVersion = async (uploadId, fileName, newFile,user) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("newFile", newFile);
+      formData.append("authorId", user.id);
+      const response = await axios.post(
+        `http://localhost:3000/api/upload/${uploadId}/files/${fileName}/modify`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error saving new file version:", error);
+      setLoading(false);
+      setError({
+        open: true,
+        message: "Failed to save new file version. Please try again.",
+      });
+    }
+  };
   
   return {
     loading,
@@ -660,6 +715,8 @@ const fetchDocuments3 = async (userId) => {
     getFilesSentToMe,
     changeUploadStatus,
     changeFileStatus,
+    saveFileFeedback,
+    saveNewFileVersion,
     downloadFile,
     deleteFile,
   };

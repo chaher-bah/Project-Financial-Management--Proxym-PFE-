@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router()
+// const form=require("multer")()
 const uploadController = require("../controllers/uploadController.js");
-const uploadMiddleware = require("../middleware/uploadService.js");
+
+const fileController = require("../controllers/fileController.js");
+const {upload,uploadVersion} =require( "../middleware/uploadService.js")
 
 
-router.post("/send",uploadMiddleware.array('files'), uploadController.uploadFile); // Upload file
+router.post("/send",upload.array('files'), uploadController.uploadFile); // Upload files
 router.get("/:uploadId", uploadController.getUploadById); // Get upload by ID
 
 
@@ -19,9 +22,15 @@ router.patch("/update/:uploadId/:newStatus", uploadController.updateStatus); // 
 
 router.patch("/:status/:uploadId", uploadController.updateUploadStatus); // Update upload status
 
-router.patch("/file/:uploadId/:fileName/:newStatus", uploadController.updateFileStatus); // Update file status by ID
+router.patch("/file/:uploadId/:fileName/:newStatus", fileController.updateFileStatus); // Update file status by ID
+
+router.post("/:uploadId/files/:fileName/feedback",upload.none(), fileController.saveFileFeedback); // Save file feedback
 
 
-router.get("/download/:uploadId/:originalName/:userId", uploadController.downloadFile); // Download file by ID and filename
+router.post("/:uploadId/files/:fileName/modify",uploadVersion.single('newFile'), fileController.saveNewFileVersion);
+
+router.delete("/:uploadId/files/:fileName/delete", fileController.deleteFile); // Delete upload by ID
+
+router.get("/download/:uploadId/:originalName/:userId", fileController.downloadFile); // Download file by ID and filename
 
 module.exports = router;

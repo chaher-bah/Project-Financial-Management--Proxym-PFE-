@@ -2,7 +2,7 @@ const User = require("../models/user.js");
 const axios = require("axios");
 const avatar=("../../../frontend/public/myAvatar.png");
 const admincontroller = require("./adminController.js");
-
+const roleHierarchy = ['Admin', 'Manager', 'Pmo', 'Pm', 'new'];
 
 // Function to update the user in Keycloak
 async function updateKeycloakUser(keycloakUserId, newName,newFamilyName, token) {
@@ -212,7 +212,10 @@ exports.syncUser = async (req, res) => {
       keyId: keycloakUser.sub,
       phone: existingUser?.phone || '',
       groupe: existingUser?.groupe || 'Not Assigned',
-      role: keycloakUser.realm_access?.roles || existingUser?.role ||  [],
+      role: (keycloakUser.realm_access?.roles || [])
+        .filter(role => roleHierarchy.includes(role)).length > 0 
+        ? (keycloakUser.realm_access?.roles || []).filter(role => roleHierarchy.includes(role))
+        : (existingUser?.role || []).filter(role => roleHierarchy.includes(role)),
     };
     const user = existingUser 
       ? await User.findByIdAndUpdate(existingUser._id, userData, { new: true })
