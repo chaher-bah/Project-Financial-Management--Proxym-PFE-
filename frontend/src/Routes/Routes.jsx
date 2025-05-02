@@ -13,6 +13,7 @@ const ToReviewReports = lazy(() => import("../Pages/Report/ToReviewReports"));
 const Parameters = lazy(() => import("../Pages/Settings/Parameters"));
 const RoleGroupConfig = lazy(() => import("../Pages/Role_GroupConfig/RoleGroupConfig"));
 const SentDocument = lazy(() => import("../Pages/Report/SentDocument"));
+const ConsultedReports = lazy(() => import("../Pages/Report/ConsultedReports"));
 const Routes = createBrowserRouter([
   {
     path: "/",
@@ -66,7 +67,7 @@ const Routes = createBrowserRouter([
         path: "reports/consulted",
         element: (
           <Suspense fallback={<Loader />}>
-            <Loader />
+            <ConsultedReports />
           </Suspense>
         ),
       },

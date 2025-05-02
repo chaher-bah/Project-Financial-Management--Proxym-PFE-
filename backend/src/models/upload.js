@@ -16,9 +16,10 @@ const fileversionSubSchema = new mongoose.Schema({
   fileName: { type: String, required: true }, // 
   path: { type: String, required: true },      // e.g. "backend/Uploads/…"
   contentType: { type: String, required: true },
-  uploadedBy: {type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,},
+  size: { type: Number},
+  uploadedBy: {id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  firstName: { type: String, required: true },
+  familyName: { type: String, required: true }},
   uploadDate: { type: Date, default: Date.now },
   baseFileName: { type: String, required: true }, 
 }, { _id: false });
