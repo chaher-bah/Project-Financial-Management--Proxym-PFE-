@@ -21,7 +21,8 @@ export const useDocs = () => {
     selectedCollaborators,
     dueDate,
     uploaderId,
-    comments
+    comments,
+    toPmo
   ) => {
     setLoading(true);
     try {
@@ -33,6 +34,7 @@ export const useDocs = () => {
       formData.append("dueDate", dueDate);
       formData.append("uploader", uploaderId);
       formData.append("comments", comments);
+      formData.append("toPmo", toPmo); 
       //request
       const response = await axios.post(
         "http://localhost:3000/api/upload/send",
@@ -103,86 +105,6 @@ export const useDocs = () => {
   };
   //second approach
   //fetch the document
-
-  const fetchDocuments = async (userId) => {
-    setLoading(true);
-    try {
-      //fetch sent Docs
-      const sentResponse = await axios.get(
-        `http://localhost:3000/api/upload/getSent/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        }
-      );
-      if (sentResponse.data.uploads) {
-        const sentDocuments = sentResponse.data.uploads.flatMap((upload) => {
-          return upload.files.map((file) => {
-            const recipientNames = upload.recipients.map(
-              (r) => `${r.firstName} ${r.familyName.toUpperCase()} ,`
-            );
-            return {
-              id: upload._id,
-              fileName: file.originalName,
-              recipients: recipientNames,
-              creationDate: new Date(upload.createdAt).toLocaleDateString(),
-              onOpen: () => console.log(`Opening ${file.originalName}`),
-            };
-          });
-        });
-        setSentDocuments({
-          data: sentDocuments,
-          count: sentResponse.data.count,
-        });
-      }
-      //fetch received Docs
-      const receivedResponse = await axios.get(
-        `http://localhost:3000/api/upload/getRecieved/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-        }
-      );
-
-      if (receivedResponse.data.uploads) {
-        const receivedDocuments = receivedResponse.data.uploads.flatMap(
-          (upload) => {
-            return upload.files.map((file) => {
-              const senderName = upload.uploader
-                ? `${
-                    upload.uploader.firstName
-                  } ${upload.uploader.familyName.toUpperCase()}`
-                : "Unknown Sender";
-              return {
-                id: upload._id,
-                fileName: file.originalName,
-                sender: senderName,
-                dueDate: new Date(upload.dueDate).toLocaleDateString(),
-                recipients: upload.recipients.map(
-                  (r) => `${r.firstName} ${r.familyName.toUpperCase()} `
-                ),
-                onOpen: () => console.log(`Opening ${file.originalName}`),
-              };
-            });
-          }
-        );
-        setReceivedDocuments({
-          data: receivedDocuments,
-          count: receivedResponse.data.count,
-        });
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-      setLoading(false);
-      setError({
-        open: true,
-        message: "Failed to fetch documents. Please try again.",
-      });
-    }
-  };
 
   const changeUploadStatus = async (uploadId, status) => {
     setLoading(true);
@@ -260,6 +182,37 @@ export const useDocs = () => {
       });
     }
   };
+  //download file version
+  const downloadFileVersion = async (uploadId, originalName, versionFileName) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/upload/download/${uploadId}/${originalName}/versions/${versionFileName}`,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          responseType: "blob",
+        }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", versionFileName);
+      document.body.appendChild(link);
+      link.click();
+      setLoading(false);
+    } catch (error) {
+      console.error("Error downloading file version:", error);
+      setLoading(false);
+      setError({
+        open: true,
+        message: "Failed to download file version. Please try again.",
+      });
+    }
+  }
+
+
   //delete file 
   const deleteFile = async (uploadId, originalName) => {
     setLoading(true);
@@ -470,7 +423,7 @@ const fetchDocuments3 = async (userId) => {
         { headers: { Authorization: `Bearer ${keycloak.token}` } }
       );
       const groups = resp.data; // [ { status, uploads: [...] }, ... ]
-  
+      console.log("groups",groups)
       // 2) flatten to file-level entries preserving upload metadata
       const fileEntries = groups.flatMap(grp =>
         grp.uploads.flatMap(up =>
@@ -482,7 +435,10 @@ const fetchDocuments3 = async (userId) => {
             dueDate: up.dueDate,
             comnts: up.comnts,
             isUploader: up.isUploader,
+            toPmo: up.toPmo? up.toPmo : false,
             originalStatus: grp.status,
+            feedback: file.feedback,
+            versions: file.versions,
             file // includes originalName, fileStatus, downloadedBy[]
           }))
         )
@@ -500,6 +456,7 @@ const fetchDocuments3 = async (userId) => {
             dueDate:    e.dueDate,
             comnts:     e.comnts,
             originalStatus: e.originalStatus,
+            toPmo: e.toPmo? e.toPmo : false,
             files:      []
           };
         }
@@ -509,6 +466,8 @@ const fetchDocuments3 = async (userId) => {
           status:     e.file.fileStatus,
           uploadDate: new Date(e.createdAt).toLocaleDateString(),
           downloadedBy: e.file.downloadedBy.length > 0 ? e.file.downloadedBy : [],
+          feedback:   e.file.feedback,
+          versions:   e.file.versions
 
         });
         return acc;
@@ -529,7 +488,8 @@ const fetchDocuments3 = async (userId) => {
           _id:   up.uploader._id,
           name:  `${up.uploader.firstName} ${up.uploader.familyName.toUpperCase()}`,
           email: up.uploader.email
-        }
+        },
+        toPmo: up.toPmo? up.toPmo : false,
       }));
 
       // 5) group received by effectiveStatus derived from downloadedBy
@@ -568,7 +528,6 @@ const fetchDocuments3 = async (userId) => {
 
     const recvByStatus = receivedFiles.reduce((acc, e) => {
         // determine effective status per user
-        console.log("heiijd",e);
         // const hasDownloaded = Array.isArray(e.file.downloadedBy) && e.file.downloadedBy.some(d => d.user.id.toString() === userId);
         // const effStatus = hasDownloaded ? 'EnAttente' : e.file.fileStatus === "Envoyee" ? "AReviser" : e.file.fileStatus;
         const hasDownloadedList = Array.isArray(e.file.downloadedBy) ? e.file.downloadedBy : [];
@@ -594,6 +553,7 @@ const fetchDocuments3 = async (userId) => {
             comnts: e.comnts,
             color:generateUploadColor(e.uploadId),
             status: effStatus,
+            toPmo: e.toPmo,
             files: []
           };
         } 
@@ -604,6 +564,8 @@ const fetchDocuments3 = async (userId) => {
           status: ( ((effStatus ==='EnAttente'||effStatus ==='AReviser') && hasDownloaded))? "Téléchargé" : effStatus,
           uploadDate: new Date(e.createdAt).toLocaleDateString(),
           downloadedBy: hasDownloadedList.length>0? e.file.downloadedBy:[] ,
+          feedback: e.file.feedback,
+          versions: e.file.versions
         });
         return acc;
       }, {});
@@ -631,6 +593,7 @@ const fetchDocuments3 = async (userId) => {
             familyName: up.uploader.familyName.toUpperCase(),
             email: up.uploader.email
           },
+          toPmo: up.toPmo,
           files: up.files
         }))
       };
@@ -678,6 +641,8 @@ const fetchDocuments3 = async (userId) => {
       const formData = new FormData();
       formData.append("newFile", newFile);
       formData.append("authorId", user.id);
+      formData.append("firstName", user.firstName);
+      formData.append("familyName", user.familyName);
       const response = await axios.post(
         `http://localhost:3000/api/upload/${uploadId}/files/${fileName}/modify`,
         formData,
@@ -708,7 +673,6 @@ const fetchDocuments3 = async (userId) => {
     sentDocuments2,
     otherStatusDocs,
     recievedDocuments,
-    fetchDocuments,
     fetchDocuments2,
     fetchDocuments3,
     getMyFiles,
@@ -718,6 +682,7 @@ const fetchDocuments3 = async (userId) => {
     saveFileFeedback,
     saveNewFileVersion,
     downloadFile,
+    downloadFileVersion,
     deleteFile,
   };
 };

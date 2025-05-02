@@ -53,7 +53,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
         return (
           <div style={{ padding: "8px 0px" }}>
             {params.row.isChild ? (
-              <div style={{ paddingLeft: 20, paddingBottom: 15 }}>
+              <div style={{ paddingLeft: 15, paddingBottom: 15 }}>
                 {col.field === "uploadCode" ? null : originalContent}
               </div>
             ) : (
@@ -70,6 +70,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
       id: row.id,
       isChild: false,
       hasChildren: row.files.length > 0,
+      toPmo : row.toPmo,
     };
 
     const childRows = expandedParents.has(row.id)
@@ -80,7 +81,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
           isChild: true,
           uploadCode: "", // Empty for child rows
           from: row.from,
-          to: row.to,
+          to: row.toPmo? `${row.to} <PMO>`:row.to,
           date: row.date,
         }))
       : [];
@@ -147,6 +148,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
             // Standard styles
             color: "#333",
             display: "flex",
+            wordBreak:"break-word",
 
             "& .MuiDataGrid span": {
               color: "#333",

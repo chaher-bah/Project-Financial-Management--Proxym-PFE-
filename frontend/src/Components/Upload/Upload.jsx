@@ -114,13 +114,14 @@ const Upload = () => {
         selectedCollaborators,
         dueDate,
         UPLOADERID,
-        comments
+        comments,
+
       );
       //reset form
       setFiles([]);
       setSelectedCollaborators([]);
       setDueDate("");
-
+      setComments("");
       setInfo({ message: "Fichiers importés avec succès", type: "success" });
       setRefreshUploads((prev) => prev + 1);
     } catch (error) {

@@ -81,3 +81,4 @@ exports.deleteUser = async (req, res) => {
       throw new Error("Error fetching Keycloak admin token:", error);
     }
   };
+

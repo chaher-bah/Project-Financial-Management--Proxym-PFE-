@@ -4,10 +4,7 @@ import { useGetUserData } from "../../hooks/useGetUserData";
 import { useKeycloak } from "@react-keycloak/web";
 import { processFileUploads } from "../../utils/processColumns";
 import DataTable from "../../Components/DataTable/DataTable";
-import {
-  Button,
-  Alert,
-} from "@mui/material";
+import { Button, Alert } from "@mui/material";
 import ConfirmationDialog from "../../Components/DocumentCards/ConfirmationDialog";
 import "./Reports.css";
 
@@ -38,7 +35,7 @@ const RejectedReports = () => {
     setConfirmDialogOpen(false);
     setSelectedFile(null);
   };
-  
+
   const handleConfirmStatusChange = () => {
     if (selectedFile) {
       changeFileStatus(
@@ -80,12 +77,12 @@ const RejectedReports = () => {
     {
       field: "action",
       headerName: "Opérations",
-      width: 150,
+      width: 200,
       renderCell: (params) => {
         return (
           <Button
             variant="contained"
-            color="warning"
+            color="secondary"
             size="large"
             onClick={() => handleOpenConfirmDialog(params.row)}
           >

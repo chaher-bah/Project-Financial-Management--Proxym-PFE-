@@ -30,13 +30,13 @@ const ToReviewReports = () => {
     { field: "fileName", headerName: "Nom de Document", width: 180 },
     { field: "from", headerName: "Envoyer Par", width: 130 },
     { field: "uploadDate", headerName: "Date d'Envoi", width: 110 },
-    { field: "to", headerName: "Envoyer A", width: 250 },
+    { field: "to", headerName: "Envoyer A", width: 200 },
     { field: "downloadedBy", headerName: "Télécharger Par", width: 150 },
     { field: "date", headerName: "Date Limite", width: 90 },
     {
       field: "action",
       headerName: "Télécharger",
-      width: 150,
+      width: 180,
       renderCell: (params) => {
         if (!params.row.fileName) return null;
         return (

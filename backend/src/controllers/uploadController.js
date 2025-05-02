@@ -27,7 +27,7 @@ exports.uploadFile = async (req, res) => {
         });
       }
     }
-
+    const toPmo = req.body.toPmo; // Expecting a boolean value
     const dueDate = req.body.dueDate;
     const uploader = req.body.uploader; // Expecting the uploader ID
     if (!dueDate || !recipients || !uploader) {
@@ -55,6 +55,7 @@ exports.uploadFile = async (req, res) => {
       dueDate: new Date(dueDate),
       files: files,
       comnts: comnts,
+      toPmo: toPmo,
     });
 
     await upload.save();
@@ -355,7 +356,8 @@ exports.getUploadsByUser = async (req, res, next) => {
           createdAt:  1,
           updatedAt:  1,
           files:      1,
-          isUploader: 1
+          isUploader: 1,
+          toPmo:     1,
       }},
 
       // group into buckets by status

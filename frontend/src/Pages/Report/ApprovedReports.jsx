@@ -1,39 +1,127 @@
-import React from "react";
-import { Container, Typography, Button, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import "./Reports.css";
+import React, { useEffect, useState } from "react";
+import { useDocs } from "../../hooks/useDocs";
+import { useGetUserData } from "../../hooks/useGetUserData";
+import { useKeycloak } from "@react-keycloak/web";
+import { processFileUploads } from "../../utils/processColumns";
 import DataTable from "../../Components/DataTable/DataTable";
+import { Button, Alert } from "@mui/material";
+import ConfirmationDialog from "../../Components/DocumentCards/ConfirmationDialog";
+import "./Reports.css";
 
-const ApprovedReports = () => {
-  const navigate = useNavigate();
+const RejectedReports = () => {
+  const { keycloak } = useKeycloak();
+  const { userData } = useGetUserData();
+  const { fetchDocuments3, otherStatusDocs, changeFileStatus, deleteFile } =
+    useDocs();
+  useEffect(() => {
+    if (userData?.id && keycloak.authenticated) {
+      fetchDocuments3(userData.id);
+    }
+  }, [userData?.id, keycloak.authenticated]);
+  const rejectedUploads = otherStatusDocs["Approuvee"] || {
+    count: 0,
+    data: [],
+  };
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
+  const processedUploads = processFileUploads(rejectedUploads.data);
+  const [info, setInfo] = useState({ type: "", message: "" });
+  const [open, setOpen] = useState(false);
 
-  const testColumns = [
-    {field: "fileName", headerName: "Nom de Document", width: 300},
-    {field: "collaborateurs", headerName: "Collaborateurs", width: 250},
-    {field: "date", headerName: "Date Limite", width: 150},
-    {field: "action", headerName: "Action", width: 200, renderCell: (params) => (
-      <Button variant="contained" color="success" size="small" onClick={()=>{console.log("Opening")}}>
-        Open
-      </Button>
-    )},]
+  const handleOpenConfirmDialog = (file) => {
+    setSelectedFile(file);
+    setConfirmDialogOpen(true);
+  };
 
-    const testRows = [
-      {id: 1, fileName: "Team Classification.txt", collaborateurs: "Mohammed, Bilel,Monji", date: "2023-03-15"},
-      {id: 2, fileName: "Best Team Rapport.xlsx", collaborateurs: "Bilel", date: "2023-03-14"},
-      {id: 3, fileName: "DevOps Tools Subscription", collaborateurs: "Lamia", date: "2023-03-13"},
-      {id: 4, fileName: "Annual Budget.pdf", collaborateurs: "Mohammed", date: "2023-03-12"},
-      {id: 5, fileName: "Project Timeline.docx", collaborateurs: "Bilel", date: "2023-03-11"},
-    ]
-  
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+    setSelectedFile(null);
+  };
+
+  const handleConfirmStatusChange = () => {
+    if (selectedFile) {
+      changeFileStatus(
+        selectedFile.parentId,
+        selectedFile.fileName,
+        "EnAttente"
+      )
+        .then(() => {
+          setInfo({
+            type: "success",
+            message: `Le document ${selectedFile.fileName} a été placé en attente de révision.`,
+          });
+          setOpen(true);
+          setTimeout(() => setOpen(false), 3000);
+          fetchDocuments3(userData?.id); // Refresh the data
+        })
+        .catch((error) => {
+          setInfo({
+            type: "error",
+            message:
+              "Une erreur s'est produite lors de la modification du statut.",
+          });
+          setOpen(true);
+          setTimeout(() => setOpen(false), 3000);
+        });
+      handleCloseConfirmDialog();
+    }
+  };
+
+  const Columns = [
+    { field: "uploadCode", headerName: "Code", width: 150 },
+    // { field: "comnts", headerName: "Commentaires", width: 150 },
+    { field: "fileName", headerName: "Nom de Document", width: 200 },
+    { field: "from", headerName: "Envoyer Par", width: 150 },
+    { field: "uploadDate", headerName: "Date d'Envoi", width: 150 },
+    { field: "to", headerName: "Envoyer A", width: 300 },
+    { field: "date", headerName: "Date Limite", width: 150 },
+
+    {
+      field: "action",
+      headerName: "Opérations",
+      width: 200,
+      renderCell: (params) => {
+        return (
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            onClick={() => handleOpenConfirmDialog(params.row)}
+          >
+            Réexaminer
+          </Button>
+        );
+      },
+    },
+  ];
+
   return (
+    <div style={{ margin: 1, maxWidth: "97%" }}>
+      {open && (
+        <Alert severity={info.type} sx={{ mb: 4, fontSize: "1.2rem" }}>
+          {info.message}
+        </Alert>
+      )}
       <DataTable
-        columns={testColumns}
-        rows={testRows}
-        title="Documents Approuvés"
+        columns={Columns}
+        rows={processedUploads}
+        title="Documents Approvés"
         backPath="/reports"
+        expand={false}
       />
+
+      <ConfirmationDialog
+        open={confirmDialogOpen}
+        onClose={handleCloseConfirmDialog}
+        title="Confirmation de changement de statut"
+        content="Êtes-vous sûr de vouloir placer ce document en attente de révision ?"
+        onConfirm={handleConfirmStatusChange}
+        selectedItem={selectedFile?.fileName}
+        selectedItemLabel="Document"
+      />
+    </div>
   );
 };
 
-export default ApprovedReports;
+export default RejectedReports;

@@ -166,12 +166,16 @@ exports.saveNewFileVersion = async (req, res) => {
     // Build the version entry.
     // Here, newFile.filename should have already been renamed by Multer.
     fileEntry.versions.push({
-      originalName: newFile.originalName, // Keep the original base name as reference
+      originalName: newFile.originalname, // Keep the original base name as reference
       fileName: newFile.filename, // the new templated filename
       size: newFile.size,
       path: newFile.path,
       contentType: newFile.mimetype,
-      uploadedBy: authorId,
+      uploadedBy: {
+        id: authorId,
+        firstName: firstName,
+        familyName: familyName,
+      },
       uploadDate: new Date(),
       baseFileName: fileEntry.originalName, // Keep the original base name as reference
     });
@@ -334,6 +338,53 @@ exports.downloadFile = async (req, res) => {
     await upload.save();
     // Send the file
     res.download(file.path, file.originalName, (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ message: "Error downloading file" });
+      }
+    });
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    res
+      .status(500)
+      .json({ message: "Error downloading file", error: error.message });
+  }
+};
+
+//download file version
+exports.downloadFileVersion = async (req, res) => {
+  try {
+    const { uploadId, fileName, versionFileName } = req.params;
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(uploadId)) {
+      return res.status(400).json({ message: "Invalid upload ID format" });
+    }
+    // Check if upload exists
+    const upload = await Upload.findById(uploadId).exec();
+    if (!upload) {
+      return res.status(404).json({ message: "Upload not found" });
+    }
+    // Find the file in the upload
+    const file = upload.files.find((f) => f.originalName === fileName);
+    if (!file) {
+      return res.status(404).json({ message: "File not found in upload" });
+    }
+    // Find the version in the file
+    const version = file.versions.find((v) => v.originalName === versionFileName && v.baseFileName === fileName); ;
+    if (!version) {
+      return res.status(404).json({ message: "Version not found in file" });
+    }
+    
+    // Set headers for file download
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${version.fileName}`
+    );
+    res.setHeader("Content-Type", version.contentType);
+    res.setHeader("Content-Length", version.size);
+    
+    // Send the file
+    res.download(version.path, version.fileName, (err) => {
       if (err) {
         console.error("Error downloading file:", err);
         res.status(500).json({ message: "Error downloading file" });

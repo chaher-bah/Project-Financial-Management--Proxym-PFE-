@@ -90,19 +90,41 @@ const DocCard = ({ title, documents, cardColor, expandRoute, className }) => {
                       borderRadius: 4,
                     }}
                   />
-                  <Grid item xs={4} ><Typography variant="subtitle2">{upload.code}</Typography></Grid>
-                  <Grid item xs={3} ><Chip label={upload.status} size="small" color={upload.status === "Approuvee" ? "success" : upload.status === "EnAttente" ? "warning" : upload.status === "Refuse" ? "error" : "default"} /></Grid>
-                  <Grid item xs={7} ><Typography variant="body2">
-                    {upload.recipients && userData.id === upload.sender._id
-                      ? `A: ${upload.recipients.join(", ")}`
-                      : `De: ${
-                          upload.sender.firstName
-                        } ${upload.sender.familyName}`}
-                  </Typography></Grid>
-                  <Grid item xs={2} >
+                  <Grid item xs={4}>
+                    <Typography variant="subtitle2">{upload.code}</Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Chip
+                      label={upload.toPmo?`${upload.status} <PMO>`:upload.status}
+                      size="small"
+                      color={
+                        upload.status === "Approuvee"
+                          ? "success"
+                          : upload.status === "EnAttente"
+                          ? "warning"
+                          : upload.status === "Refuse"
+                          ? "error"
+                          :upload.toPmo
+                          ? "secondary"
+                          : "default"
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={7}>
+                    <Typography variant="body2">
+                      {upload.recipients && userData.id === upload.sender._id
+                        ? `A: ${upload.recipients.join(", ")}`
+                        : `De: ${upload.sender.firstName} ${upload.sender.familyName}`}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
                     {upload.dueDate ? (
                       <DateDiffIndicator dueDate={upload.dueDate} />
-                    ) : <Typography variant="body2">{doc.creationDate}</Typography>}
+                    ) : (
+                      <Typography variant="body2">
+                        {doc.creationDate}
+                      </Typography>
+                    )}
                   </Grid>
                 </div>
               </Grid>
@@ -117,15 +139,34 @@ const DocCard = ({ title, documents, cardColor, expandRoute, className }) => {
                     justifyContent: "space-around",
                     padding: "8px 0",
                     borderBottom: "1px solid #eee",
+                    alignItems: "center",
+                    flexWrap: "wrap",
                   }}
                 >
-                  <Typography>{file.name}</Typography>
+                  <Grid item xs={5}>
+                    <Typography
+                      variant="subtitle"
+                      sx={{ wordBreak: "break-word" }}
+                    >
+                      {file.name}
+                    </Typography>
+                  </Grid>
                   <Chip
                     label={file.status}
                     size="small"
-                    color={file.status === "Approuvee" ? "success" : file.status === "EnAttente" ? "warning" : file.status === "Refuse" ? "error" : "default"}
+                    color={
+                      file.status === "Approuvee"
+                        ? "success"
+                        : file.status === "EnAttente"
+                        ? "warning"
+                        : file.status === "Refuse"
+                        ? "error"
+                        : "default"
+                    }
                   />
-                  <Typography variant="caption">Envoyé le: {file.uploadDate}</Typography>
+                  <Typography variant="caption">
+                    Envoyé le: {file.uploadDate}
+                  </Typography>
                 </div>
               ))}
             </AccordionDetails>

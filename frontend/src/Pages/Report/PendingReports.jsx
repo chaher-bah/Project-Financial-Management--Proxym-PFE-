@@ -66,7 +66,6 @@ const PendingReports = () => {
   };
   
   const handleOpenFeedback = (fileRow, uploadRow) => {
-    console.log("uproadRow", uploadRow);
     setSelectedFile({
       fileName: fileRow.fileName,
       sender: uploadRow.from,
@@ -83,37 +82,12 @@ const PendingReports = () => {
     setModifyFileInput(null);
   };
 
-  // const handleSendFeedback = async() => {
-  //   try{
-  //     await saveFileFeedback(
-  //       selectedFile.parentId,
-  //       feedbackText,
-  //       userData,
-  //       selectedFile.fileName,
-  //     );
-  //     setInfo({ type: "success", message: "Feedback envoyé avec succès" });
-  //     setOpen(true);
-  //     await fetchDocuments3(userData.id);
-  //     setOpenFeedback(false);
-
-  //   }catch (error) {
-  //     setInfo({ type: "error", message: "Erreur lors de l'envoi du feedback" });
-  //   }
-  //   finally {
-  //     setOpen(true);
-  //     setTimeout(() => setOpen(false), 3000);
-  //     setInfo({ type: "", message: "" });
-  //   }
-  // };
-
-
-  const handleSendFeedback = async () => {
+  const handleSendFeedbackAndModify = async () => {
     let feedbackSent = false;
     let fileUploaded = false;
     let errors = [];
   
     // Send feedback if text is provided
-    console.log("feedbackText", feedbackText,selectedFile.parentId, userData, selectedFile.fileName);
     if (feedbackText.trim() !== '') {
       try {
         await saveFileFeedback(
@@ -182,29 +156,7 @@ const PendingReports = () => {
     setOpenFeedback(false);
   };
   const handleFileChange = (e) => setModifyFileInput(e.target.files[0]);
-  
-  const handleSendModify = async() => {
-    if (!modifyFileInput) return;
-    try{
-      await saveNewFileVersion(
-        selectedFile.parentId,
-        selectedFile.fileName,
-        modifyFileInput,
-        userData,
-      );
-      setInfo({ type: "success", message: "Fichier Ajouter avec succès" });
-      await fetchDocuments3(userData.id);
-      setOpenFeedback(false);
-    }catch (error) {
-      setInfo({ type: "error", message: "Erreur lors de l'envoi du fichier" });
-    }
-    finally {
-      setOpen(true);
-      setTimeout(() => setOpen(false), 3000);
-      setInfo({ type: "", message: "" });
-    }
-  };
-  
+
   
   // Function to handle confirmation of status change
   const handleConfirmStatusChange = () => {
@@ -245,13 +197,13 @@ const PendingReports = () => {
     { field: "fileName", headerName: "Nom de Document", width: 200 },
     { field: "from", headerName: "Envoyer Par", width: 130 },
     { field: "uploadDate", headerName: "Date d'Envoi", width: 110 },
-    { field: "to", headerName: "Envoyer A", width: 250 },
+    { field: "to", headerName: "Envoyer A", width: 200 },
     { field: "downloadedBy", headerName: "Télécharger Par", width: 200 },
     { field: "date", headerName: "Date Limite", width: 110 },
     {
       field: "action",
       headerName: "Operations",
-      width: 210,
+      width: 240,
       renderCell: (params) => {
         const fileRow =
           params.row.files.find((f) => f.id === params.row.id) || params.row;
@@ -378,7 +330,7 @@ const PendingReports = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseFeedback}>Annuler</Button>
-          <Button onClick={handleSendFeedback} disabled={!feedbackText.trim() && !modifyFileInput}>
+          <Button onClick={handleSendFeedbackAndModify} disabled={!feedbackText.trim() && !modifyFileInput}>
             Envoyer
           </Button>
         </DialogActions>

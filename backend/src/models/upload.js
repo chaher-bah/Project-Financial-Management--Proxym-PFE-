@@ -80,6 +80,10 @@ const uploadSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  toPmo: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true,
 });

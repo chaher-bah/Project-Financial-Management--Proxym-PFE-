@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./DocumentCard.css";
+import DateDiffIndicator from "../DateDiffIndicator/DateDiffIndicator";
 
 const DocumentCard = ({
   title,
@@ -28,7 +29,7 @@ const DocumentCard = ({
   const scrollStyles =
     documents.count > 5
       ? {
-          maxHeight:  "250px",
+          maxHeight: "250px",
           overflowY: "auto",
         }
       : {};
@@ -49,8 +50,7 @@ const DocumentCard = ({
               badgeContent={documents.count}
               color="secondary"
               className="document-count"
-            >
-            </Badge>
+            ></Badge>
             <Button
               variant="contained"
               size="small"
@@ -71,15 +71,21 @@ const DocumentCard = ({
             className="document-row"
             alignItems="center"
           >
-            <Grid item xs={6} className="document-name">
+            <Grid item xs={5} className="document-name">
               <Typography variant="body1">{doc.fileName}</Typography>
             </Grid>
-            <Grid item xs={4} className="document-destination">
-              <Typography variant="body2">{doc.recipients||doc.sender}</Typography>
+            <Grid item xs={5} className="document-destination">
+              <Typography variant="body2">
+                {doc.recipients || doc.sender}
+              </Typography>
             </Grid>
-            
-            <Grid item xs={1} className="document-action">
-                <Typography variant="body2">{doc.creationDate||doc.dueDate}</Typography>
+
+            <Grid item xs={2} className="document-action">
+              {doc.dueDate ? (
+                <DateDiffIndicator dueDate={doc.dueDate} />
+              ) : (
+                <Typography variant="body2">{doc.creationDate}</Typography>
+              )}
             </Grid>
           </Grid>
         ))}

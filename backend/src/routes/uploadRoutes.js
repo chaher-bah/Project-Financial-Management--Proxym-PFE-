@@ -32,5 +32,6 @@ router.post("/:uploadId/files/:fileName/modify",uploadVersion.single('newFile'),
 router.delete("/:uploadId/files/:fileName/delete", fileController.deleteFile); // Delete upload by ID
 
 router.get("/download/:uploadId/:originalName/:userId", fileController.downloadFile); // Download file by ID and filename
+router.get("/download/:uploadId/:fileName/versions/:versionFileName", fileController.downloadFileVersion); // Download file by ID and filename
 
 module.exports = router;

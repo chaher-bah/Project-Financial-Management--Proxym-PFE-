@@ -19,8 +19,8 @@ const DocumentCardContainer = ({refreshTag}) => {
   console.log("sentDocuments",sentDocuments2);
   console.log("other things ",otherStatusDocs);
   const toReviewDocs   = otherStatusDocs["AReviser"]  || { count: 0, data: [] };
-  const pendingDocs    = otherStatusDocs["EnAttente"] || { count: 0, data: [] };console.log("pendingDocs",pendingDocs);
-  const consultedDocs  = otherStatusDocs["Consultee"] || { count: 0, data: [] };console.log("consultedDocs",consultedDocs);
+  const pendingDocs    = otherStatusDocs["EnAttente"] || { count: 0, data: [] };
+  const consultedDocs  = otherStatusDocs["Consultee"] || { count: 0, data: [] };;
   const approvedDocs   = otherStatusDocs["Approuvee"] || { count: 0, data: [] };
   const rejectedDocs   = otherStatusDocs["Refuse"]    || { count: 0, data: [] };
   return (

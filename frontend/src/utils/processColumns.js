@@ -7,7 +7,7 @@ export const processUploads = (uploads) => {
       date: new Date(upload.dueDate).toLocaleDateString(),
       uploadColor: upload.color,
       comnts: upload.comments,
-      status: upload.status,
+      status: upload.toPmo?`${upload.status} <PMO>`   : upload.status,
       files: upload.files.map(file => ({
         
         id: file.name,
@@ -17,7 +17,12 @@ export const processUploads = (uploads) => {
         uploadDate: new Date(file.uploadDate).toLocaleDateString(),
         downloadedBy: Array.isArray(file.downloadedBy) && file.downloadedBy.length > 0
         ? file.downloadedBy.map(d => d.user? ` ${d.user.firstName} ${d.user.familyName.toUpperCase()}` : "Utilisateur").join(", ")
-        : "Non téléchargé",        }))
+        : "Non téléchargé",        
+
+        files: [{ ...file, parentId: upload.id }],
+
+      }
+      ))
     }));
   };
 
@@ -37,7 +42,7 @@ export const processUploads = (uploads) => {
             " " +
             upload.sender.familyName.toUpperCase(),
           uploadDate: new Date(file.uploadDate).toLocaleDateString(),
-          to: upload.recipients.join(", "),
+          to: upload.toPmo?`${upload.recipients} <PMO>` :upload.recipients.join(", "),
           downloadedBy:
             Array.isArray(file.downloadedBy) && file.downloadedBy.length > 0
               ? file.downloadedBy
@@ -48,6 +53,7 @@ export const processUploads = (uploads) => {
                   )
                   .join(", ")
               : "Non téléchargé",
+
           date: new Date(upload.dueDate).toLocaleDateString(),
           parentId: upload.id,
           files: [{ ...file, parentId: upload.id }],

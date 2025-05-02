@@ -6,6 +6,7 @@ const userController = require('../controllers/userController.js');
 router.get('/', userController.getUsers);
 router.get('/me', userController.getCurrentKeycloakUser);
 router.post('/create', userController.createUserFromKeycloak);
+
 router.get('/:userId', userController.getUserById);
 router.get('/email/:email', userController.getUserByEmail);
 
@@ -17,7 +18,7 @@ router.put('/sync', userController.syncUser);
 router.patch('/avatar/:email', userController.updateUserPhoto);
 
 
-
+router.get('/role/:role', userController.getUsersByRole);
 
 
 

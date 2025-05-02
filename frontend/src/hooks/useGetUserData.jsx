@@ -142,7 +142,29 @@ export const useGetUserData = () => {
       });
     }
   };
-
+  //Get PMO users
+  const getUsersByRole = async (role) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:3000/api/user/role/${role}`,
+        {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        }
+      );
+      console.log("operation fetch:",response.data.message);
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError({
+        open: true,
+        message: "Failed to load user data. Please try again later.",
+      });
+    }
+  };
 
   return {
     userData,
@@ -153,6 +175,7 @@ export const useGetUserData = () => {
     updateUser:setUserData,
     getAllUsers,
     getUserById,
+    getUsersByRole,
   };
 
 
