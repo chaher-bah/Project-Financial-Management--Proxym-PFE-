@@ -34,7 +34,7 @@ export const useDocs = () => {
       formData.append("dueDate", dueDate);
       formData.append("uploader", uploaderId);
       formData.append("comments", comments);
-      formData.append("toPmo", toPmo); 
+      formData.append("toPmo", toPmo ? "true" : "false"); 
       //request
       const response = await axios.post(
         "http://localhost:3000/api/upload/send",

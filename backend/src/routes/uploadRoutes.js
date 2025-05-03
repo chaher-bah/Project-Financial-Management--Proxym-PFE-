@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router()
-// const form=require("multer")()
 const uploadController = require("../controllers/uploadController.js");
 
 const fileController = require("../controllers/fileController.js");

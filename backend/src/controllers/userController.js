@@ -3,6 +3,7 @@ const axios = require("axios");
 const avatar = "../../../frontend/public/myAvatar.png";
 const admincontroller = require("./adminController.js");
 const roleHierarchy = ["Admin", "Manager", "Pmo", "Pm", "new"];
+const Role = require("../models/role"); // Import the Role model
 
 // Function to update the user in Keycloak
 async function updateKeycloakUser(
@@ -212,7 +213,7 @@ exports.getUserById = async (req, res) => {
 exports.getUserByEmail = async (req, res) => {
   try {
     const { email } = req.params;
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email }).populate("role").lean();
     // const base64= Buffer.from(user.photo).toString('base64');
     // const imageUrl = `data:image/png;base64,${base64}`;
     if (!user) {
@@ -227,12 +228,35 @@ exports.getUserByEmail = async (req, res) => {
   }
 };
 
-//sync user data with keycloak and DB
-
 exports.syncUser = async (req, res) => {
   try {
     const keycloakUser = req.kauth.grant.access_token.content; // Keycloak token data
     const existingUser = await User.findOne({ email: keycloakUser.email });
+
+    // Determine the role names from Keycloak
+    const keycloakRoles = (keycloakUser.realm_access?.roles || []).filter((role) =>
+      roleHierarchy.includes(role)
+    );
+
+    // Ensure roles from Keycloak exist in the database, create if they don’t
+    const keycloakRoleDocs = await Promise.all(
+      keycloakRoles.map(async (roleName) => {
+        const roleDoc = await Role.findOneAndUpdate(
+          { name: roleName },           // Find role by name
+          { name: roleName },           // Set name (no-op if exists)
+          { upsert: true, new: true }   // Create if not found, return the document
+        );
+        return roleDoc;
+      })
+    );
+    const keycloakRoleIds = keycloakRoleDocs.map((doc) => doc._id);
+
+    // Determine roles to assign:
+    // - Use Keycloak roles if available; otherwise, keep existing roles or use empty array
+    const rolesToAssign = keycloakRoles.length > 0 
+      ? keycloakRoleIds 
+      : (existingUser ? existingUser.role : []);
+
     // Merge data: DB values take priority over Keycloak values
     const userData = {
       firstName: existingUser?.firstName || keycloakUser.given_name,
@@ -241,17 +265,9 @@ exports.syncUser = async (req, res) => {
       keyId: keycloakUser.sub,
       phone: existingUser?.phone || "",
       groupe: existingUser?.groupe || "Not Assigned",
-      role:
-        (keycloakUser.realm_access?.roles || []).filter((role) =>
-          roleHierarchy.includes(role)
-        ).length > 0
-          ? (keycloakUser.realm_access?.roles || []).filter((role) =>
-              roleHierarchy.includes(role)
-            )
-          : (existingUser?.role || []).filter((role) =>
-              roleHierarchy.includes(role)
-            ),
+      role: rolesToAssign, // Array of ObjectIds
     };
+
     const user = existingUser
       ? await User.findByIdAndUpdate(existingUser._id, userData, { new: true })
       : await User.create(userData);
@@ -259,15 +275,15 @@ exports.syncUser = async (req, res) => {
     res.status(200).json({ message: "User synced successfully", user });
   } catch (error) {
     console.error("Error syncing user:", error);
-    res
-      .status(500)
-      .json({ message: "Error syncing user", error: error.message });
+    res.status(500).json({ message: "Error syncing user", error: error.message });
   }
 };
 
+
+
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().populate("role").lean(); 
     res.status(200).json({ message: "users from DB", users: users });
   } catch (error) {
     res
@@ -278,14 +294,20 @@ exports.getUsers = async (req, res) => {
 
 exports.getUsersByRole = async (req, res) => {
   try {
-    // read role from either URL param or query string
+    // Read role from either URL param or query string
     const roleToFind = req.params.role || req.query.role;
     if (!roleToFind) {
       return res.status(400).json({ message: "Role is required" });
     }
 
-    // find all users where the role array contains the given string
-    const users = await User.find({ role: roleToFind }).lean();
+    // Find the role document by name to get its ObjectId
+    const role = await Role.findOne({ name: roleToFind });
+    if (!role) {
+      return res.status(404).json({ message: `Role "${roleToFind}" not found` });
+    }
+
+    // Find all users where the role array contains the role's ObjectId
+    const users = await User.find({ role: role._id }).lean();
 
     if (users.length === 0) {
       return res
@@ -303,29 +325,3 @@ exports.getUsersByRole = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
-// exports.updateUserDetails = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-//     const { name, email, numTel } = req.body;
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     if (name) {
-//       user.name = name;
-//     }
-//     if (email) {
-//       user.email = email;
-//     }
-//     if (numTel) {
-//       user.phone = numTel;
-//     }
-//     await user.save();
-//     res.status(200).json({ message: "User updated successfully", user });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating user", error: error.message });
-//   }
-// };

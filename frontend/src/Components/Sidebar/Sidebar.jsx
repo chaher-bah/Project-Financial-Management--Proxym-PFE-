@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import Card from "../Card/Card";
 import "./sidebar.css";
@@ -13,22 +13,31 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { Drawer, List, Toolbar, Typography, IconButton } from "@mui/material";
+import {useGetUserData} from "../../hooks/useGetUserData";
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
   const [isExpanded, setIsExpanded] = useState(true);
+  const { userData } = useGetUserData();
+  
 
-  const menuItems = [
+  const baseMenuItems = [
     { name: "Dashboard", icon: <FiHome />, path: "/dash" },
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
     { name: "Validation des Docs", icon: <FiPieChart />, path: "/reports" },
     { name: "Equipes", icon: <FiUsers />, path: "/team" },
-    { name: "Roles config", icon: <FiUserX />, path: "/role-assignment" },
     {
       name: "Parametres",
       icon: <FiTool />,
       path: "/account-management",
     },
+  ];
+  const adminMenuItems = [
+    { name: "Roles config", icon: <FiUserX />, path: "/role-assignment" },
+  ];
+  const menuItems = [
+    ...baseMenuItems,
+    ...(userData.role.includes("Admin") ? adminMenuItems : [])
   ];
 
   const toggleSidebar = () => {

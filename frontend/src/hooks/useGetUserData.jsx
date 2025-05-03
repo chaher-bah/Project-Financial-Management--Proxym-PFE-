@@ -1,13 +1,12 @@
 import { useKeycloak } from "@react-keycloak/web";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 export const useGetUserData = () => {
   const { keycloak, initialized } = useKeycloak();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ open: false, message: "" });
   const [avatarPreview, setAvatarPreview] = useState("/myAvatar.png");
-  const ROLE_HIERARCHY = ["Admin","Pmo","Pm","Manager"];
+  const ROLE_HIERARCHY = ["Admin","Pmo","Pm","Manager","new"];
 
   const [userData, setUserData] = useState({
     id: null,
@@ -16,10 +15,9 @@ export const useGetUserData = () => {
     email: "contact@proxym.com",
     phoneNumber: "+216 71 123 456",
     groupe: "BEST",
-    role: "Admin",
+    role: ["Pm"],
     photo: avatarPreview,
   });
-
   //fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,22 +33,22 @@ export const useGetUserData = () => {
           }
         );
         const user = response.data.user;
-        console.log("operation fetch:",response.data.message);
-        const rawRoles = Array.isArray(keycloak.realmAccess?.roles)
-        ? keycloak.realmAccess.roles
-        : [];
-      const filteredRoles = rawRoles.filter(r => ROLE_HIERARCHY.includes(r));
-      const completeUserData = {
-        id: user._id,
-        familyName: user.familyName || userData.familyName,
-        firstName: user.firstName || userData.firstName,
-        email: user.email || userData.email,
-        phoneNumber: user.phone || userData.phoneNumber,
-        groupe: user.groupe || "Not Assigned",
-        role: filteredRoles.length ? filteredRoles : ["Not Assigned"],
-        photo: user.photo || "/myAvatar.png"
-      };
-        setUserData(completeUserData);
+        const filteredRoles = (user.role || [])
+          .map(role => role.name)
+          .filter(name => ROLE_HIERARCHY.includes(name));
+
+        const rolesNames = filteredRoles; // Keeping this for backward compatibility
+        setUserData((prev) => ({
+          ...prev,
+          id: user._id,
+          familyName: user.familyName || prev.familyName,
+          firstName: user.firstName || prev.firstName,
+          email: user.email || prev.email,
+          phoneNumber: user.phone || prev.phoneNumber,
+          groupe: user.groupe || "Not Assigned",
+          role: rolesNames.length > 0 ? filteredRoles : ["Not Assigned"],
+          photo: user.photo || prev.photo,
+        }));
         setAvatarPreview(user.photo || "/myAvatar.png");
       } catch (error) {
         console.error("Error fetching user data:", error);

@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import Navbar from "../Components/Navbar/Navbar";
 import { useGetUserData } from "../hooks/useGetUserData";
+import { useRole } from "../hooks/useRole";
 import { checkUserAccess } from "../utils/roles";
 const MainLayout = () => {
   const { userData,loading } = useGetUserData();
@@ -11,6 +12,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const path =location.pathname;
   const userRoles = userData?.role||[];
+  console.log("userRoles",userData);
   const hasNoAccess = !checkUserAccess(userRoles) && path!=='/error';
   if (hasNoAccess) {
     navigate('/error', { replace: true });

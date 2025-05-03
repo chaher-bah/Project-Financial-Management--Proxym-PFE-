@@ -6,6 +6,7 @@ const { connectToDatabase } = require("../database/mongoose.js");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const roleRoutes = require("./routes/roleRoute");
 const mongoose = require("mongoose");
 const { keycloakInst, sessionMiddleware } = require("./middleware/service.js");
 const Keycloak = require("keycloak-connect");
@@ -56,6 +57,10 @@ app.use("/api/admin", keycloakInst.protect("realm:Admin"), adminRoutes);
 
 // Upload API
 app.use("/api/upload", keycloakInst.protect(), uploadRoutes);
+
+// Role API
+app.use("/api/role", keycloakInst.protect(), roleRoutes);
+
 
 // Add MongoDB connection status endpoint
 app.get("/api/status", (req, res) => {
