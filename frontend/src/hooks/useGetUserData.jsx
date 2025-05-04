@@ -35,7 +35,7 @@ export const useGetUserData = () => {
         const user = response.data.user;
         const filteredRoles = (user.role || [])
           .map(role => role.name)
-          .filter(name => ROLE_HIERARCHY.includes(name));
+          // .filter(name => ROLE_HIERARCHY.includes(name));
 
         const rolesNames = filteredRoles; // Keeping this for backward compatibility
         setUserData((prev) => ({

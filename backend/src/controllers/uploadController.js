@@ -28,7 +28,6 @@ exports.uploadFile = async (req, res) => {
       }
     }
     const toPmo = req.body.toPmo; // Expecting a boolean value
-    console.log("toPmo", toPmo);
     const dueDate = req.body.dueDate;
     const uploader = req.body.uploader; // Expecting the uploader ID
     if (!dueDate || !recipients || !uploader) {

@@ -2,7 +2,7 @@ const User = require("../models/user.js");
 const axios = require("axios");
 const avatar = "../../../frontend/public/myAvatar.png";
 const admincontroller = require("./adminController.js");
-const roleHierarchy = ["Admin", "Manager", "Pmo", "Pm", "new"];
+const roleHierarchy = require("../config/roles.js"); 
 const Role = require("../models/role"); // Import the Role model
 
 // Function to update the user in Keycloak
@@ -253,9 +253,8 @@ exports.syncUser = async (req, res) => {
 
     // Determine roles to assign:
     // - Use Keycloak roles if available; otherwise, keep existing roles or use empty array
-    const rolesToAssign = keycloakRoles.length > 0 
-      ? keycloakRoleIds 
-      : (existingUser ? existingUser.role : []);
+    const rolesToAssign =
+   (existingUser ? existingUser.role : []);
 
     // Merge data: DB values take priority over Keycloak values
     const userData = {

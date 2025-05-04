@@ -1,6 +1,6 @@
 
 export const checkUserAccess = (userRoles) => {
-  const ROLEHIERARCHY = "Admin,PMO,Pm,Manager,new";
+  const ROLEHIERARCHY = "Admin,PMO,Pm,Manager,new,Tester";
   const roles = Array.isArray(userRoles) ? userRoles : [userRoles];
 
     const validRoles = (ROLEHIERARCHY || '').split(',').map(r => r.trim()).filter(Boolean);

@@ -38,7 +38,7 @@ const Parameters = () => {
       phoneNumber: userData.phoneNumber,
     });
   }, [userData]);
-
+  console.log("userData",userData);
  
   /* test with th image upload TODO chage it */
   const handleFileChange = (e) => {

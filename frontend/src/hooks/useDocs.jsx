@@ -40,7 +40,7 @@ export const useDocs = () => {
         "http://localhost:3000/api/upload/send",
         formData,
         {
-          headers: {
+          headers: { 
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${keycloak.token}`,
           },

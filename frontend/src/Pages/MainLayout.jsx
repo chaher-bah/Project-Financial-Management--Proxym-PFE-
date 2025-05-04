@@ -12,7 +12,6 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const path =location.pathname;
   const userRoles = userData?.role||[];
-  console.log("userRoles",userData);
   const hasNoAccess = !checkUserAccess(userRoles) && path!=='/error';
   if (hasNoAccess) {
     navigate('/error', { replace: true });

@@ -51,7 +51,6 @@ exports.updateFileStatus = async (req, res) => {
 exports.saveFileFeedback = async (req, res) => {
   const { uploadId, fileName } = req.params;
   const { feedbackText, authorId, firstName, familyName } = req.body;
-  console.log(req.params);
   if (!feedbackText || !authorId) {
     return res
       .status(400)
