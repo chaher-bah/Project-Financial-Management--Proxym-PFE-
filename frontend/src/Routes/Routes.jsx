@@ -1,11 +1,10 @@
 import React, { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../Pages/MainLayout";
-import Page404 from "../Pages/Page404/Page404";
-import Dash from "../Pages/Dashboard/Dash";
 import Loader from "../Components/Loader/Loader";
-import PendingReports from "../Pages/Report/PendingReports";
 // Lazy-loaded components
+const Dash = lazy(() => import("../Pages/Dashboard/Dash"));
+
 const Reports = lazy(() => import("../Pages/Report/Reports"));
 const ApprovedReports = lazy(() => import("../Pages/Report/ApprovedReports"));
 const RejectedReports = lazy(() =>import("../Pages/Report/RejectedReports"));
@@ -14,6 +13,10 @@ const Parameters = lazy(() => import("../Pages/Settings/Parameters"));
 const RoleGroupConfig = lazy(() => import("../Pages/Role_GroupConfig/RoleGroupConfig"));
 const SentDocument = lazy(() => import("../Pages/Report/SentDocument"));
 const ConsultedReports = lazy(() => import("../Pages/Report/ConsultedReports"));
+const ProjectManagement = lazy(() => import("../Pages/ProjectManagement/ProjectManagement"));
+const PendingReports = lazy(() => import("../Pages/Report/PendingReports"));
+const Page404 = lazy(() => import("../Pages/Page404/Page404"));
+
 const Routes = createBrowserRouter([
   {
     path: "/",
@@ -80,6 +83,7 @@ const Routes = createBrowserRouter([
         ),
       },
       { path: "team", element: <div>Teams Page</div> },
+      {path: "gestion-projets", element: <ProjectManagement />},
       { path: "role-assignment",
          element: (
           <Suspense fallback={<Loader />}>

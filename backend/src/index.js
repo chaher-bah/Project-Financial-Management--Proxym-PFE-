@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const roleRoutes = require("./routes/roleRoute");
+const clickUpRoutes = require("./routes/clickUpRoute");
 const mongoose = require("mongoose");
 const { keycloakInst, sessionMiddleware } = require("./middleware/service.js");
 const Keycloak = require("keycloak-connect");
@@ -60,6 +61,9 @@ app.use("/api/upload", keycloakInst.protect(), uploadRoutes);
 
 // Role API
 app.use("/api/role", keycloakInst.protect(), roleRoutes);
+
+//ClickUp API
+app.use("/api/clickup", keycloakInst.protect(), clickUpRoutes);
 
 
 // Add MongoDB connection status endpoint
