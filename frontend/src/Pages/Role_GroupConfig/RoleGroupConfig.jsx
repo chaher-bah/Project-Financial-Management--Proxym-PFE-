@@ -281,7 +281,7 @@ const RoleGroupConfig = () => {
     <Box sx={{ padding: 2, margin: 'auto' }}>
         {infoRole && <Alert severity={infoRole.type} sx={{fontSize:"1.2rem" ,m:5}}>{infoRole.message}</Alert>} 
       {/* Roles Section */}        
-      <Typography variant="h4" gutterBottom color='#333'>Roles</Typography>
+      <Typography variant="h4"  component="h1" gutterBottom >Roles</Typography>
 
       <Box sx={{ border: '1px solid #1D1616',borderRadius:"15px", padding: 2, m: 2,mb: 10,width: "95%" }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', whiteSpace: 'nowrap', gap: 2 }}>
@@ -318,7 +318,7 @@ const RoleGroupConfig = () => {
       </Box>
 
       {/* Users Section */}        
-      <Typography variant="h4" sx={{ color: 'green' }} gutterBottom>Utilisateurs</Typography>
+      <Typography variant="h4"  component="h1" gutterBottom>Utilisateurs</Typography>
 
       <Box sx={{ border: '1px solid #1D1616', padding: 2,borderRadius: "15px",m:2 ,width: "95%" }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>

@@ -2,6 +2,8 @@ import React, { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../Pages/MainLayout";
 import Loader from "../Components/Loader/Loader";
+import ProjectDetailsPage from "../Pages/ProjectManagement/ProjectDetailsPage ";
+import EquipesManagement from "../Pages/EquipesManagement/EquipesManagement";
 // Lazy-loaded components
 const Dash = lazy(() => import("../Pages/Dashboard/Dash"));
 
@@ -82,8 +84,9 @@ const Routes = createBrowserRouter([
           </Suspense>
         ),
       },
-      { path: "team", element: <div>Teams Page</div> },
+      { path: "team", element: <EquipesManagement /> },
       {path: "gestion-projets", element: <ProjectManagement />},
+      {path:"/project-pending/:workspaceId/:projectId", element: <ProjectDetailsPage />},
       { path: "role-assignment",
          element: (
           <Suspense fallback={<Loader />}>

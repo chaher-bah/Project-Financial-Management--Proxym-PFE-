@@ -2,10 +2,9 @@ import React from "react";
 import { Outlet ,useLocation,useNavigate} from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebar from "../Components/Sidebar/Sidebar";
-import Navbar from "../Components/Navbar/Navbar";
 import { useGetUserData } from "../hooks/useGetUserData";
-import { useRole } from "../hooks/useRole";
 import { checkUserAccess } from "../utils/roles";
+const Navbar = React.lazy(() => import("../Components/Navbar/Navbar"));
 const MainLayout = () => {
   const { userData,loading } = useGetUserData();
   const location = useLocation();

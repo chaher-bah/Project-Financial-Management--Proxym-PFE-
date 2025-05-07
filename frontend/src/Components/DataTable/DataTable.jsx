@@ -69,7 +69,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
       ...row,
       id: row.id,
       isChild: false,
-      hasChildren: row.files.length > 0,
+      hasChildren: row.files?.length > 0|| false,
       toPmo : row.toPmo,
     };
 
@@ -127,7 +127,7 @@ const DataTable = ({ columns, rows, title, backPath,expand }) => {
             sx={{ marginLeft: 2 }}
           >
             <ArrowBackIcon sx={{ marginRight: 1 }} />
-            Retour à la liste des documents
+            Retour
           </Button>
         )}
       </Box>

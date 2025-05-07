@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
-import Card from "../Card/Card";
+// import Card from "../Card/Card";
 import "./sidebar.css";
 import {
   FiHome,
@@ -11,9 +11,12 @@ import {
   FiUserX,
   FiChevronLeft,
   FiChevronRight,
+  FiTable   
+  
 } from "react-icons/fi";
-import { Drawer, List, Toolbar, Typography, IconButton } from "@mui/material";
+import { Drawer, List, Toolbar, IconButton } from "@mui/material";
 import {useGetUserData} from "../../hooks/useGetUserData";
+const Card =React.lazy(() => import("../Card/Card"));
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -25,6 +28,7 @@ const Sidebar = () => {
     { name: "Dashboard", icon: <FiHome />, path: "/dash" },
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
     { name: "Validation des Docs", icon: <FiPieChart />, path: "/reports" },
+    { name: "Gestion des Projets", icon: <FiTable   />, path: "/gestion-projets" },
     { name: "Equipes", icon: <FiUsers />, path: "/team" },
     {
       name: "Parametres",

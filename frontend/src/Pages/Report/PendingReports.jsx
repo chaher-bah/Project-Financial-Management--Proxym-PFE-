@@ -42,7 +42,6 @@ const PendingReports = () => {
   // State for feedback dialog
   const [openFeedback, setOpenFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
-  const [openModify, setOpenModify] = useState(false);
   const [modifyFileInput, setModifyFileInput] = useState(null);
 
   // Function to open confirmation dialog for Approve action
