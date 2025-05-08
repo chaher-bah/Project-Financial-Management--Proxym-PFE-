@@ -1,7 +1,8 @@
 require("dotenv").config();
 const axios = require("axios");
 const express = require("express");
-
+const NodeCache = require('node-cache');
+const folderCache = new NodeCache({ stdTTL: 600 }); 
 const clickUpRequest = async (url) => {
   try {
     const response = await axios.get(url, {
@@ -48,6 +49,8 @@ exports.getWorkspaces = async (req, res) => {
     res.status(500).json({ error: "Error fetching workspaces" });
   }
 };
+
+
 //spaces are CLIENTS in our case
 // get all spaces of the workspace
 exports.getSpaces = async (req, res) => {
@@ -78,25 +81,15 @@ exports.getSpaces = async (req, res) => {
 exports.getAllFolders = async (req, res) => {
   try{
   const spacesData = await clickUpRequest(
-    `https://api.clickup.com/api/v2/team/${req.params.wsId}/space`
+    `https://api.clickup.com/api/v2/team/${process.env.CLICKUP_WORKSPACE_ID}/space`
   );
   const spaces = spacesData.spaces || [];
-
   const folderData= await Promise.all(
     spaces.map( (space) => clickUpRequest(
         `https://api.clickup.com/api/v2/space/${space.id}/folder`)
         .then((data)=>data.folders || [])
     )
   );
-
-      // const foldersReturn= folderData.flat()
-      // .map((folder) => ({
-      //   id: folder.id,
-      //   name: folder.name,
-      //   spaceId: folder.space.id,
-      //   spaceName: folder.space.name,
-      // }));
-
       //approach 2
       const spacesWithFolders = spaces.map((space, index) => ({
         spaceId: space.id,
@@ -116,6 +109,26 @@ exports.getAllFolders = async (req, res) => {
   }
 }
 
+//get all task types 
+exports.getTaskTypes = async (req, res) => {
+  try {
+    const url = `https://api.clickup.com/api/v2/team/${process.env.CLICKUP_WORKSPACE_ID}/custom_item`;
+    const data = await clickUpRequest(url);
+    const taskTypes = data.custom_items.map((type) => {
+      return {
+        id: type.id,
+        name: type.name,
+      };
+    });
+    res.status(200).json({
+      message: "Les types de tâches",
+      data: { TaskTypes: taskTypes },
+    });
+  } catch (error) {
+    console.error("Error fetching task types:", error);
+    res.status(500).json({ error: "Error fetching task types" });
+  }
+};
 
 
 
@@ -146,7 +159,6 @@ exports.getFolders = async (req, res) => {
 // get all tasks of a folder
 exports.getTasks = async (req, res) => {
   try {
-    console.log(req.params.listId);
     const url = `https://api.clickup.com/api/v2/list/${req.params.listId}/task`;
     const data = await clickUpRequest(url);
 
@@ -167,6 +179,73 @@ exports.getTasks = async (req, res) => {
     res.status(500).json({ error: "Error fetching workspaces" });
   }
 };
+
+exports.getSpaceTasksByType = async (req, res) => {
+  const { projectId } = req.params;
+  try{
+    const typesData = await clickUpRequest(
+      `https://api.clickup.com/api/v2/team/${process.env.CLICKUP_WORKSPACE_ID}/custom_item`
+    );
+    const typeMap = Object.fromEntries(
+      (typesData.custom_items || []).map(t => [t.id, t.name])
+    );  
+
+    let page = 0, all = [], got;
+    do {
+      const data = await clickUpRequest(
+        //just for testing 
+        // `https://api.clickup.com/api/v2/team/${wsId}/task?spaces[]=${spaceId}&include_closed=true&page=${page}`
+        `https://api.clickup.com/api/v2/team/${process.env.CLICKUP_WORKSPACE_ID}/task?project_ids[]=${projectId}&include_closed=true&page=${page}`
+
+      );
+      got = data.tasks || [];
+      all.push(...got);
+      page++;
+    } while (got.length === 100);
+
+    const groupedByType={};
+    all.forEach(task => {
+      const typeId = task.custom_item_id ??0;
+      const typeName = typeMap[typeId] || "Default";
+      groupedByType[typeName] = groupedByType[typeName] || [];
+    
+      groupedByType[typeName].push({
+        id: task.id,
+        name: task.name,
+        // status: task.status.status,
+        due_date: task.due_date
+          ? new Date(Number(task.due_date)).toISOString().split("T")[0]
+          : null,
+        start_date: task.start_date
+          ? new Date(Number(task.start_date)).toISOString().split("T")[0]
+          : null,
+        time_estimate: task.time_estimate 
+          ? (task.time_estimate / 3600000).toFixed(2) + " hours"
+          : null,
+        time_spent: task.time_spent
+          ? (task.time_spent / 3600000).toFixed(2) + " hours"
+          : null,
+        assignee: task.assignees.map((a) => ({
+          id: a.id,
+          name: a.username,
+          email: a.email,
+        })),
+      });
+
+    });
+    res.status(200).json({
+      message: `Les tâches de projet ${projectId}`,
+      total: all.length,
+      tasks: groupedByType,
+    });
+  }catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Erreur lors de la récupération des tâches" });
+  }
+
+}
+
+
 
 // exports.getFolderTasks = async (req, res) => {
 //   const { folderId } = req.params;

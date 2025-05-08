@@ -86,7 +86,7 @@ const Routes = createBrowserRouter([
       },
       { path: "team", element: <EquipesManagement /> },
       {path: "gestion-projets", element: <ProjectManagement />},
-      {path:"/project-pending/:workspaceId/:projectId", element: <ProjectDetailsPage />},
+      {path:"/project-pending/:projectId", element: <ProjectDetailsPage />},
       { path: "role-assignment",
          element: (
           <Suspense fallback={<Loader />}>

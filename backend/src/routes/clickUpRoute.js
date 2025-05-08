@@ -13,4 +13,8 @@ router.get('/spaces/:wsId/folders/all', clickUpController.getAllFolders); // Get
 router.get('/spaces/lists/:listId/tasks', clickUpController.getTasks); 
 
 router.get('/folder/:folderId/tasks', clickUpController.getFolderTasks);
+router.get('/taskTypes/', clickUpController.getTaskTypes); // Get all task types
+
+router.get('/folder/:projectId/tasks-by-type', clickUpController.getSpaceTasksByType); // Get all tasks of a space (client)
+
 module.exports = router;
