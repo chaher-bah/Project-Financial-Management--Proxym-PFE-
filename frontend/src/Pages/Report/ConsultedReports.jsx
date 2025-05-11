@@ -89,7 +89,6 @@ const ConsultedReports = () => {
       headerName: "Actions",
       width: 290,
       renderCell: (params) => {
-        console.log("params", params.row);
         return (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <FileActionsMenu

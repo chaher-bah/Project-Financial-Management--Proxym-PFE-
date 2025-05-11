@@ -1,5 +1,5 @@
 import { useKeycloak } from "@react-keycloak/web";
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useCallback} from "react";
 import axios from "axios";
 export const useGetUserData = () => {
   const { keycloak, initialized } = useKeycloak();
@@ -95,7 +95,7 @@ export const useGetUserData = () => {
   };
 
   //Get all users
-  const getAllUsers = async () => {
+  const getAllUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(
@@ -116,7 +116,7 @@ export const useGetUserData = () => {
         message: "Failed to load user data. Please try again later.",
       });
     }
-  };
+  },[keycloak.token]);
   //Get user by id
   const getUserById = async (id) => {
     try {

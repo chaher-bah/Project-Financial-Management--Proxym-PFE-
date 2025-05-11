@@ -13,7 +13,7 @@ import { FiXCircle } from "react-icons/fi";
 import { useKeycloak } from "@react-keycloak/web";
 import { useClickUp } from "../../hooks/useClickUp";
 import { useNavigate } from "react-router-dom";
-import ProjectDetailsPage from "./ProjectDetailsPage ";
+import ProjectDetailsPage from "./ProjectDetailsPage";
 import Loader from "../../Components/Loader/Loader";
 const ProjectManagement = () => {
   const { keycloak } = useKeycloak();

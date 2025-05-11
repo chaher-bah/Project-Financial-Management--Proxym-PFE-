@@ -11,7 +11,8 @@ import {
   FiUserX,
   FiChevronLeft,
   FiChevronRight,
-  FiTable   
+  FiTable,
+  FiLink 
   
 } from "react-icons/fi";
 import { Drawer, List, Toolbar, IconButton } from "@mui/material";
@@ -29,7 +30,8 @@ const Sidebar = () => {
     { name: "Budget", icon: <FiDollarSign />, path: "/budget" },
     { name: "Validation des Docs", icon: <FiPieChart />, path: "/reports" },
     { name: "Gestion des Projets", icon: <FiTable   />, path: "/gestion-projets" },
-    { name: "Equipes", icon: <FiUsers />, path: "/team" },
+    { name: "Equipes", icon: <FiLink  />, path: "/team" },
+    { name:"Gestion du Personnel", icon: <FiUsers />, path: "/gestion-personnel" },
     {
       name: "Parametres",
       icon: <FiTool />,

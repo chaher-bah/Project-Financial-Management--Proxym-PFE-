@@ -7,6 +7,7 @@ router.post("/", groupController.createGroup); // Create a new group
 router.put("/:id", groupController.updateGroup); // Update a group by ID
 router.delete("/:id", groupController.deleteGroup); // Delete a group by ID
 
+router.post("/setGroupToUser", groupController.setGroupToUser); // Set group to user
 
 
 module.exports = router;

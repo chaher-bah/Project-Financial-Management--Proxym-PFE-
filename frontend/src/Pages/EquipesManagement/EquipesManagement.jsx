@@ -14,6 +14,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Alert
 } from "@mui/material";
 import Loader from "../../Components/Loader/Loader.jsx";
 import { DataGrid } from "@mui/x-data-grid";
@@ -22,19 +23,29 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BlockIcon from "@mui/icons-material/Block";
 import { useGroups } from "../../hooks/useGroups.jsx";
-const { ConfirmationDialog } = lazy(() =>
+const ConfirmationDialog = lazy(() =>
   import("../../Components/DocumentCards/ConfirmationDialog.jsx")
 );
 
 function EquipesManagement() {
-  const { groupData, addGroup, deleteGroup, updateGroup, loading, info: groupsInfo } = useGroups();
+  const {
+    groupData,
+    addGroup,
+    deleteGroup,
+    updateGroup,
+    loading,
+    info: groupsInfo,
+  } = useGroups();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  
   const [isSpecialRole, setIsSpecialRole] = useState(false);
-
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,14 +60,12 @@ function EquipesManagement() {
   // Show Snackbar when groupsInfo updates
   useEffect(() => {
     if (groupsInfo.message) {
-      setSnackbarMessage(groupsInfo.message);
-      setSnackbarOpen(true);
+      setSnackbar({open: true, message: groupsInfo.message, severity: groupsInfo.type});
     }
   }, [groupsInfo]);
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
+// Handle snackbar close
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const renderRateCell = (params) => {
@@ -127,7 +136,6 @@ function EquipesManagement() {
       field: "special",
       headerName: "Rôle Spécial",
       flex: 0.6,
-      // width: 300,
       align: "center",
       headerAlign: "center",
       editable: false,
@@ -152,7 +160,9 @@ function EquipesManagement() {
             </Tooltip>
           );
         }
-        return `${params.row.variants.map((v) => v.name)} - ${params.row.variants.map((v) => v.tarif)} ($/J)`;
+        return `${params.row.variants.map(
+          (v) => v.name
+        )} - ${params.row.variants.map((v) => v.tarif)} ($/J)`;
       },
     },
   ];
@@ -186,15 +196,30 @@ function EquipesManagement() {
     }
   };
 
-  const handleDeleteRow = async () => {
+  const handleOpenConfirmDialog = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleDeleteRow = () => {
+    // Show confirmation dialog instead of immediately deleting
+    handleOpenConfirmDialog();
+  };
+
+  const handleConfirmDelete = async () => {
     if (selectedRow) {
       await deleteGroup(selectedRow.id);
       setDialogOpen(false);
+      handleCloseConfirmDialog();
     }
   };
+
   const handleFieldChange = (field, value) => {
     setSelectedRow((prev) => {
-      if (field === "name" ) {
+      if (field === "name") {
         return { ...prev, name: value };
       } else if (isSpecialRole) {
         const updatedVariants = [
@@ -203,10 +228,25 @@ function EquipesManagement() {
         return { ...prev, variants: updatedVariants };
       } else {
         const variantName = field;
-        const updatedVariants = prev.variants.map((v) =>
-          v.name === variantName ? { ...v, tarif: value === "" ? null : Number(value) } : v
-        );
-        
+        // Check if the variant exists
+        const variantExists = prev.variants.some((v) => v.name === variantName);
+
+        let updatedVariants;
+        if (variantExists) {
+          // Update existing variant
+          updatedVariants = prev.variants.map((v) =>
+            v.name === variantName
+              ? { ...v, tarif: value === "" ? null : Number(value) }
+              : v
+          );
+        } else {
+          // Add new variant
+          updatedVariants = [
+            ...prev.variants,
+            { name: variantName, tarif: value === "" ? null : Number(value) },
+          ];
+        }
+
         return { ...prev, variants: updatedVariants };
       }
     });
@@ -216,7 +256,15 @@ function EquipesManagement() {
   };
 
   const handleAddGroup = async () => {
-    const { name, roleType, Junior, Confirme, Senior, specialRole, specialTarif } = formData;
+    const {
+      name,
+      roleType,
+      Junior,
+      Confirme,
+      Senior,
+      specialRole,
+      specialTarif,
+    } = formData;
     let variants = [];
     let special = false;
 
@@ -227,7 +275,12 @@ function EquipesManagement() {
         { name: "Senior", tarif: Senior ? Number(Senior) : null },
       ];
     } else {
-      variants = [{ name: specialRole, tarif: specialTarif ? Number(specialTarif) : null }];
+      variants = [
+        {
+          name: specialRole,
+          tarif: specialTarif ? Number(specialTarif) : null,
+        },
+      ];
       special = true;
     }
 
@@ -261,7 +314,11 @@ function EquipesManagement() {
           onChange={(e) => handleAddFieldChange("roleType", e.target.value)}
         >
           <FormControlLabel value="normal" control={<Radio />} label="Normal" />
-          <FormControlLabel value="special" control={<Radio />} label="Special" />
+          <FormControlLabel
+            value="special"
+            control={<Radio />}
+            label="Special"
+          />
         </RadioGroup>
         {formData.roleType === "normal" ? (
           <>
@@ -285,7 +342,9 @@ function EquipesManagement() {
               label="Tarif Senior ($/J)"
               type="number"
               value={formData.Senior}
-              onChange={(e) => handleAddFieldChange("Senior", e.target?.value || "")}
+              onChange={(e) =>
+                handleAddFieldChange("Senior", e.target?.value || "")
+              }
               fullWidth
               variant="outlined"
             />
@@ -295,7 +354,9 @@ function EquipesManagement() {
             <TextField
               label="Nom du rôle spécial"
               value={formData.specialRole}
-              onChange={(e) => handleAddFieldChange("specialRole", e.target.value)}
+              onChange={(e) =>
+                handleAddFieldChange("specialRole", e.target.value)
+              }
               fullWidth
               variant="outlined"
             />
@@ -303,7 +364,9 @@ function EquipesManagement() {
               label="Tarif ($/J)"
               type="number"
               value={formData.specialTarif}
-              onChange={(e) => handleAddFieldChange("specialTarif", e.target.value)}
+              onChange={(e) =>
+                handleAddFieldChange("specialTarif", e.target.value)
+              }
               fullWidth
               variant="outlined"
             />
@@ -327,15 +390,17 @@ function EquipesManagement() {
             variant="outlined"
           />
           <TextField
-        label="Rôle Spécial"
-        value={selectedRow.variants[0]?.name || ""}
-        onChange={(e) => {
-          const updatedVariants = [{ ...selectedRow.variants[0], name: e.target.value }];
-          setSelectedRow({ ...selectedRow, variants: updatedVariants });
-        }}
-        fullWidth
-        variant="outlined"
-      />
+            label="Rôle Spécial"
+            value={selectedRow.variants[0]?.name || ""}
+            onChange={(e) => {
+              const updatedVariants = [
+                { ...selectedRow.variants[0], name: e.target.value },
+              ];
+              setSelectedRow({ ...selectedRow, variants: updatedVariants });
+            }}
+            fullWidth
+            variant="outlined"
+          />
           <TextField
             label="Tarif ($/J)"
             type="number"
@@ -360,7 +425,9 @@ function EquipesManagement() {
         <TextField
           label="Tarif Junior ($/J)"
           type="number"
-          value={selectedRow.variants.find((v) => v.name === "Junior")?.tarif || ""}
+          value={
+            selectedRow.variants.find((v) => v.name === "Junior")?.tarif || ""
+          }
           onChange={(e) => handleFieldChange("Junior", e.target.value)}
           fullWidth
           variant="outlined"
@@ -369,7 +436,9 @@ function EquipesManagement() {
         <TextField
           label="Tarif Confirmé ($/J)"
           type="number"
-          value={selectedRow.variants.find((v) => v.name === "Confirme")?.tarif || ""}
+          value={
+            selectedRow.variants.find((v) => v.name === "Confirme")?.tarif || ""
+          }
           onChange={(e) => handleFieldChange("Confirme", e.target.value)}
           fullWidth
           variant="outlined"
@@ -378,7 +447,9 @@ function EquipesManagement() {
         <TextField
           label="Tarif Senior ($/J)"
           type="number"
-          value={selectedRow.variants.find((v) => v.name === "Senior")?.tarif || ""}
+          value={
+            selectedRow.variants.find((v) => v.name === "Senior")?.tarif || ""
+          }
           onChange={(e) => handleFieldChange("Senior", e.target.value)}
           fullWidth
           variant="outlined"
@@ -391,11 +462,17 @@ function EquipesManagement() {
   return (
     <>
       <Snackbar
-        open={snackbarOpen}
+        open={snackbar.open}
         onClose={handleSnackbarClose}
-        message={snackbarMessage}
-        autoHideDuration={3000}
-      />
+        autoHideDuration={3000}>
+          <Alert
+          onClose={handleSnackbarClose}
+          secverity={snackbar.severity}
+          sx={{ width: "100%" }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      
       <Box
         sx={{
           minHeight: "100vh",
@@ -420,7 +497,15 @@ function EquipesManagement() {
           Configurations des Tarifs des Equipes
         </Typography>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, m: 2, width: "max-content" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            m: 2,
+            width: "max-content",
+          }}
+        >
           <Button
             variant="contained"
             sx={{ backgroundColor: "var(--design-color)", fontSize: "1.2rem" }}
@@ -437,7 +522,8 @@ function EquipesManagement() {
               fontStyle: "italic",
             }}
           >
-            Cliquez sur une ligne pour modifier les tarifs ou supprimer l'équipe.
+            Cliquez sur une ligne pour modifier les tarifs ou supprimer
+            l'équipe.
           </Typography>
         </Box>
 
@@ -448,9 +534,13 @@ function EquipesManagement() {
             rows={groupData.map((group) => ({
               id: group._id,
               name: group.name,
-              Junior: group.variants.find((v) => v.name === "Junior")?.tarif || null,
-              Confirme: group.variants.find((v) => v.name === "Confirme")?.tarif || null,
-              Senior: group.variants.find((v) => v.name === "Senior")?.tarif || null,
+              Junior:
+                group.variants.find((v) => v.name === "Junior")?.tarif || null,
+              Confirme:
+                group.variants.find((v) => v.name === "Confirme")?.tarif ||
+                null,
+              Senior:
+                group.variants.find((v) => v.name === "Senior")?.tarif || null,
               special: group.special,
               variants: group.variants,
             }))}
@@ -460,7 +550,7 @@ function EquipesManagement() {
             sx={{
               color: "#333",
               border: "none",
-              wordBreak:"break-word",
+              wordBreak: "break-word",
 
               "& .MuiDataGrid-cell": {
                 borderBottom: "1px solid rgba(146, 54, 54, 0.12)",
@@ -514,7 +604,9 @@ function EquipesManagement() {
               : `Modifier les tarifs pour ${selectedRow?.name || ""}`}
           </DialogTitle>
           <DialogContent dividers>{renderDialogContent()}</DialogContent>
-          <DialogActions sx={{ display: "flex", justifyContent: "flex-end", gap: 3 }}>
+          <DialogActions
+            sx={{ display: "flex", justifyContent: "flex-end", gap: 3 }}
+          >
             <Button
               variant="contained"
               color="error"
@@ -562,6 +654,19 @@ function EquipesManagement() {
             </Button>
           </DialogActions>
         </Dialog>
+        {/* Confirmation dialog for deletion */}
+        <ConfirmationDialog
+          open={confirmDialogOpen}
+          onClose={handleCloseConfirmDialog}
+          title="Confirmation de suppression"
+          content="Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible."
+          confirmButtonText="Supprimer"
+          cancelButtonText="Annuler"
+          onConfirm={handleConfirmDelete}
+          confirmButtonColor="error"
+          selectedItem={selectedRow?.name}
+          selectedItemLabel="Équipe"
+        />
       </Box>
     </>
   );

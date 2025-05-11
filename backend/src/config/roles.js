@@ -3,7 +3,6 @@ const ROLEHIERARCHY = [
   "Pmo",
   "Pm",
   "Manager",
-  "new",
-  "Tester"
+  "new"
 ];
-module.exports = ROLEHIERARCHY; // Export the array for use in other files
+module.exports = ROLEHIERARCHY;

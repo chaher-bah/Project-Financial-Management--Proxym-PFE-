@@ -282,7 +282,13 @@ exports.syncUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("role").lean(); 
+    const users = await User.find()
+    .populate("role")
+    .populate({
+      path:"group",
+    select:"name variants",
+})
+    .lean(); 
     res.status(200).json({ message: "users from DB", users: users });
   } catch (error) {
     res

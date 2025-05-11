@@ -29,6 +29,13 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Role",
     }],
+    group:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+    },
+    position:{
+        type:String,
+    }
 });
 
 module.exports= mongoose.model("User", userSchema);

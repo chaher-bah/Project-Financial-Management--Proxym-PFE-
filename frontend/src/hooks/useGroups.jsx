@@ -21,7 +21,7 @@ export const useGroups = () => {
                         },
                     }
                 );
-                setInfo({type:"success",message:response.data.message});
+                setInfo({type:'info',message:response.data.message});
                 setGroupData(response.data.data); 
             } catch (err) {
                 console.error("Error fetching all groups:", err);
@@ -94,7 +94,7 @@ export const useGroups = () => {
                     },
                 }
             );
-            setInfo({type:"success",message:response.data.message});
+            setInfo({type:"warning",message:response.data.message});
             setGroupData((prevGroupData) =>
                 prevGroupData.filter((group) => group._id !== groupId)                
 
@@ -107,5 +107,27 @@ export const useGroups = () => {
         }
     };
 
-    return { groupData,updateGroup,deleteGroup,addGroup, loading, info };
+    const setGroupToUser = async (userId, groupId, position) => {
+        if (!keycloak.authenticated || !keycloak.token) return;
+        setLoading(true);
+        try {
+            const response = await axios.post(
+                "http://localhost:3000/api/group/setGroupToUser",
+                { userId, groupId, position },
+                {
+                    headers: {
+                        Authorization: `Bearer ${keycloak.token}`,
+                    },
+                }
+            );
+            setInfo({type:"success",message:response.data.message});
+        } catch (err) {
+            console.error("Error setting group to user:", err);
+            setInfo({type:"error",message:err.message});
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { groupData,updateGroup,deleteGroup,addGroup,setGroupToUser, loading, info };
 }

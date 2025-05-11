@@ -2,8 +2,6 @@ import React, { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../Pages/MainLayout";
 import Loader from "../Components/Loader/Loader";
-import ProjectDetailsPage from "../Pages/ProjectManagement/ProjectDetailsPage ";
-import EquipesManagement from "../Pages/EquipesManagement/EquipesManagement";
 // Lazy-loaded components
 const Dash = lazy(() => import("../Pages/Dashboard/Dash"));
 
@@ -17,6 +15,9 @@ const SentDocument = lazy(() => import("../Pages/Report/SentDocument"));
 const ConsultedReports = lazy(() => import("../Pages/Report/ConsultedReports"));
 const ProjectManagement = lazy(() => import("../Pages/ProjectManagement/ProjectManagement"));
 const PendingReports = lazy(() => import("../Pages/Report/PendingReports"));
+const ProjectDetailsPage = lazy(() => import("../Pages/ProjectManagement/ProjectDetailsPage"));
+const EquipesManagement = lazy(() => import("../Pages/EquipesManagement/EquipesManagement"));
+const AssigneeManagement = lazy(() => import("../Pages/EquipesManagement/AssigneeManagement"));
 const Page404 = lazy(() => import("../Pages/Page404/Page404"));
 
 const Routes = createBrowserRouter([
@@ -85,6 +86,7 @@ const Routes = createBrowserRouter([
         ),
       },
       { path: "team", element: <EquipesManagement /> },
+      { path: "gestion-personnel", element: <AssigneeManagement /> },
       {path: "gestion-projets", element: <ProjectManagement />},
       {path:"/project-pending/:projectId", element: <ProjectDetailsPage />},
       { path: "role-assignment",
